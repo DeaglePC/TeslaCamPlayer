@@ -35,8 +35,19 @@ class TeslaCamViewer {
         });
 
         // 进度条控制
-        document.getElementById('progressBar').addEventListener('input', (e) => {
+        const progressBar = document.getElementById('progressBar');
+        progressBar.addEventListener('input', (e) => {
             this.seekAllVideos(e.target.value);
+            // 拖动进度条时暂停视频，提供更好的用户体验
+            this.pauseAllVideos();
+        });
+        
+        // 添加进度条拖动结束后的事件
+        progressBar.addEventListener('change', (e) => {
+            // 如果之前是播放状态，则继续播放
+            if (this.isPlaying) {
+                this.playAllVideos();
+            }
         });
 
         // 过滤器
@@ -80,6 +91,7 @@ class TeslaCamViewer {
         
         this.allFiles.forEach(file => {
             if (file.name.endsWith('.mp4')) {
+                // 匹配特斯拉行车记录仪的文件名格式 (例如: 2024-06-20_09-56-50-back.mp4)
                 const match = file.name.match(/(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})/);
                 if (match) {
                     const timestamp = match[1];
@@ -107,9 +119,45 @@ class TeslaCamViewer {
         });
 
         this.timeGroups = Object.values(timeGroups).sort((a, b) => 
-            new Date(b.timestamp.replace(/_/g, ' ').replace(/-/g, ':')) - 
-            new Date(a.timestamp.replace(/_/g, ' ').replace(/-/g, ':'))
+            this.parseTimestamp(b.timestamp) - this.parseTimestamp(a.timestamp)
         );
+    }
+    
+    // 正确解析特斯拉时间戳格式
+    parseTimestamp(timestamp) {
+        try {
+            console.log("原始时间戳:", timestamp);
+            
+            // 分离日期和时间部分
+            const [datePart, timePart] = timestamp.split('_');
+            console.log("日期部分:", datePart, "时间部分:", timePart);
+            
+            if (!datePart || !timePart) {
+                console.error("时间戳格式错误");
+                return new Date();
+            }
+            
+            // 将时间部分的连字符替换为冒号
+            const formattedTime = timePart.replace(/-/g, ':');
+            console.log("格式化后的时间:", formattedTime);
+            
+            // 组合成标准格式
+            const dateTimeString = `${datePart}T${formattedTime}`;
+            console.log("完整日期时间字符串:", dateTimeString);
+            
+            const date = new Date(dateTimeString);
+            console.log("解析后的日期对象:", date);
+            
+            if (isNaN(date.getTime())) {
+                console.error("日期解析失败");
+                return new Date();
+            }
+            
+            return date;
+        } catch (error) {
+            console.error("日期解析错误:", error);
+            return new Date();
+        }
     }
 
     getEventType(path) {
@@ -150,7 +198,7 @@ class TeslaCamViewer {
         }
 
         fileList.innerHTML = groups.map(group => {
-            const date = new Date(group.timestamp.replace(/_/g, ' ').replace(/-/g, ':'));
+            const date = this.parseTimestamp(group.timestamp);
             const fileCount = Object.keys(group.files).length;
             
             return `
@@ -185,12 +233,31 @@ class TeslaCamViewer {
     }
 
     formatDateTime(date) {
-        return date.toLocaleString('zh-CN', {
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        if (!(date instanceof Date) || isNaN(date.getTime())) {
+            return '日期处理中...';
+        }
+        
+        try {
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        } catch (error) {
+            console.error("日期格式化错误:", error);
+            // 手动格式化日期，以防toLocaleString失败
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            
+            return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+        }
     }
 
     selectTimeGroup(timestamp) {
@@ -246,7 +313,7 @@ class TeslaCamViewer {
     updateVideoInfo() {
         if (!this.currentTimeGroup) return;
 
-        const date = new Date(this.currentTimeGroup.timestamp.replace(/_/g, ' ').replace(/-/g, ':'));
+        const date = this.parseTimestamp(this.currentTimeGroup.timestamp);
         document.getElementById('currentTimeRange').textContent = this.formatDateTime(date);
         document.getElementById('eventType').textContent = this.getEventTypeLabel(this.currentTimeGroup.eventType);
         document.getElementById('fileCount').textContent = Object.keys(this.currentTimeGroup.files).length;
@@ -326,6 +393,9 @@ class TeslaCamViewer {
         videos.forEach(video => {
             video.currentTime = seekTime;
         });
+        
+        // 更新时间显示
+        document.getElementById('currentTime').textContent = this.formatTime(seekTime);
     }
 
     updateProgress() {

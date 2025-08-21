@@ -211,9 +211,24 @@ body {
     align-items: center;
     gap: 1rem;
     margin-bottom: 1rem;
-    padding: 1rem;
-    background: #f8f9fa;
+    padding: 1.2rem;
+    background: #f0f2f5;
     border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    position: relative;
+}
+
+.video-controls::before {
+    content: "视频进度控制";
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    background: #007bff;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: bold;
 }
 
 .time-display {
@@ -222,22 +237,61 @@ body {
     color: #495057;
 }
 
+.progress-tip {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-left: 10px;
+    background: rgba(0, 123, 255, 0.1);
+    padding: 3px 8px;
+    border-radius: 10px;
+    border: 1px dashed #007bff;
+}
+
 .progress-bar {
     flex: 1;
-    height: 6px;
+    height: 10px;
     background: #e9ecef;
-    border-radius: 3px;
+    border-radius: 5px;
     outline: none;
     cursor: pointer;
+    transition: height 0.2s ease;
+}
+
+.progress-bar:hover {
+    height: 14px;
 }
 
 .progress-bar::-webkit-slider-thumb {
     appearance: none;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     background: #007bff;
     border-radius: 50%;
     cursor: pointer;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+
+.progress-bar::-webkit-slider-thumb:hover {
+    width: 22px;
+    height: 22px;
+    background: #0056b3;
+}
+
+.progress-bar::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+
+.progress-bar::-moz-range-thumb:hover {
+    width: 22px;
+    height: 22px;
+    background: #0056b3;
 }
 
 .video-grid {
