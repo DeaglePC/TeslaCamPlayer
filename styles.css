@@ -18,7 +18,7 @@ body {
 .container {
     height: 100%;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 /* Header */
@@ -72,9 +72,41 @@ body {
 /* Main Content */
 .main-content {
     display: flex;
+    flex-direction: column;
     flex: 1;
     overflow: hidden;
     position: relative;
+}
+
+.main-header {
+    padding: 8px 16px;
+    background-color: #1f1f1f;
+    flex-shrink: 0;
+    border-bottom: 1px solid #333;
+    z-index: 50;
+}
+
+.toggle-sidebar-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.toggle-sidebar-btn svg {
+    transition: transform 0.3s ease;
+    width: 24px;
+    height: 24px;
+}
+
+.toggle-sidebar-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.toggle-sidebar-btn.collapsed svg {
+    transform: rotate(180deg);
 }
 
 /* Sidebar */
@@ -87,6 +119,7 @@ body {
     flex-direction: column;
     flex-shrink: 0;
     transition: margin-left 0.3s ease;
+    position: relative; /* Ensure footer is positioned relative to sidebar */
 }
 
 .sidebar.collapsed {
@@ -145,6 +178,8 @@ body {
     overflow-y: auto;
     padding: 1rem;
     min-height: 0;
+    /* Add padding to prevent content from being hidden by the sticky footer */
+    padding-bottom: 90px;
 }
 
 .empty-state {
@@ -240,129 +275,206 @@ body {
     border-radius: 6px;
 }
 
-/* Video Area */
-.video-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: #212529;
-    padding: 1rem;
-    gap: 1rem;
-}
-
-/* 主播放器区域 */
-.main-player-section {
-    flex: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    min-height: 0;
-}
-
-.player-container {
-    flex: 1;
-    min-height: 0;
+.sidebar-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
     width: 100%;
-    background-color: #000;
-    border-radius: 40px;
-    overflow: hidden;
-    position: relative;
+    padding: 1rem;
+    border-top: 1px solid #ddd;
+    background-color: #f8f9fa;
+    z-index: 10;
 }
 
-#main-player {
+#selectFolderBtn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+
+#selectFolderBtn:hover {
+    background-color: #0056b3;
+}
+
+.controls-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 15px;
+}
+
+.controls-left, .controls-center, .controls-right {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.controls-left {
+    justify-content: flex-start;
+}
+
+.controls-center {
+    justify-content: center;
+}
+
+.controls-right {
+    justify-content: flex-end;
+}
+
+.real-time-clock {
+    font-size: 0.9em;
+    min-width: 70px;
+    text-align: right;
+    color: white;
+}
+
+/* Player Area */
+.player-area {
+    flex: 1;
+    background-color: #000;
+    position: relative;
+    overflow: hidden;
+}
+
+.video-container {
+    position: absolute;
+    background-color: #111;
+    transition: all 0.3s ease-in-out;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.video-container.is-main {
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    background: #000;
-    border-radius: 40px;
+    z-index: 10;
+    border-radius: 0;
+    box-shadow: none;
 }
 
-/* 现代视频控制界面 */
+.video-container.is-pip {
+    width: 24%;
+    height: 24%;
+    z-index: 20;
+    cursor: pointer;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.video-container.is-pip:hover {
+    border-color: #007bff;
+    transform: scale(1.05);
+}
+
+.video-container.pos-top-left { top: 2%; left: 2%; }
+.video-container.pos-top-right { top: 2%; right: 2%; }
+.video-container.pos-bottom-left { bottom: 12%; left: 2%; }
+.video-container.pos-bottom-right { bottom: 12%; right: 2%; }
+
+.video-container.hidden {
+    opacity: 0;
+    transform: scale(0);
+}
+
+.video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-container.empty::after {
+    content: '无信号';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #666;
+    background-color: #000;
+    font-size: 14px;
+}
+
+.video-container::before {
+    content: attr(data-camera);
+    text-transform: capitalize;
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 30;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.video-container.is-pip::before {
+    opacity: 1;
+}
+
+/* Modern Video Controls */
 .video-controls-overlay {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(180deg, rgba(8, 9, 13, 0) 0%, rgba(7.52, 9.42, 12.59, 0.90) 100%);
-    backdrop-filter: blur(1px);
-    padding: 16px 40px;
-    opacity: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    color: white;
+    opacity: 0; /* Hidden by default */
     transition: opacity 0.3s ease;
-    pointer-events: none;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    pointer-events: none; /* Allow clicks to pass through when hidden */
+    z-index: 40; /* Sit on top of PiP videos (z-index: 20) */
 }
 
-.video-controls-overlay.show {
+/* Show controls on hover of the player area */
+.player-area:hover .video-controls-overlay {
     opacity: 1;
-    pointer-events: all;
-}
-
-.player-container:hover .video-controls-overlay {
-    opacity: 1;
-    pointer-events: all;
+    pointer-events: all; /* Capture clicks when visible */
 }
 
 .video-controls-container {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-}
-
-/* 视频标题区域 */
-.video-title-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-.video-title-info {
-    display: flex;
-    flex-direction: column;
+    width: 100%;
     gap: 8px;
 }
 
-.video-title {
-    color: white;
-    font-size: 24px;
-    font-weight: 400;
-    line-height: 1.2;
-}
-
-.video-subtitle {
-    color: #BBBBBB;
-    font-size: 16px;
-    font-weight: 300;
-}
-
-.video-time-display {
-    color: white;
-    font-size: 16px;
-    font-weight: 300;
-    align-self: flex-end;
-    margin-bottom: 8px;
-}
-
-/* 进度条 */
+/* Progress Bar */
 .progress-container {
-    position: relative;
-    height: 20px;
+    width: 100%;
+    height: 20px; /* Taller for easier hovering */
+    cursor: pointer;
     display: flex;
     align-items: center;
-    cursor: pointer;
+    position: relative;
 }
 
 .progress-track {
     width: 100%;
-    height: 2px;
-    background: rgba(217, 217, 217, 0.4);
-    border-radius: 20px;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
     position: relative;
-}
-
-.progress-buffer {
-    height: 100%;
-    background: rgba(217, 217, 217, 0.6);
-    border-radius: 20px;
-    width: 0%;
-    transition: width 0.1s ease;
 }
 
 .progress-played {
@@ -370,50 +482,90 @@ body {
     top: 0;
     left: 0;
     height: 100%;
-    background: white;
-    border-radius: 20px;
-    width: 0%;
-    transition: width 0.1s ease;
+    background-color: #fff;
+    border-radius: 2px;
+    width: 0;
 }
 
 .progress-handle {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: #fff;
     position: absolute;
     top: 50%;
-    left: 0%;
-    width: 12px;
-    height: 12px;
-    background: white;
-    border-radius: 50%;
     transform: translate(-50%, -50%);
-    opacity: 0;
+    left: 0;
+    z-index: 2;
+    opacity: 0; /* Hidden by default, shown on hover */
     transition: opacity 0.2s ease;
-    cursor: pointer;
 }
 
 .progress-container:hover .progress-handle {
     opacity: 1;
 }
 
-/* 控制按钮区域 */
+.time-preview {
+    position: absolute;
+    bottom: 25px; /* Position above the progress bar */
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    display: none; /* Hidden by default, shown from JS */
+    pointer-events: none;
+}
+
+/* Bottom Controls Section */
 .controls-section {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
 }
 
-.controls-left,
-.controls-right {
+.controls-left, .controls-center, .controls-right {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    flex: 1;
+}
+
+.controls-left {
+    justify-content: flex-start;
+    gap: 12px;
+}
+
+.controls-center {
+    justify-content: center;
+}
+
+.controls-right {
+    justify-content: flex-end;
+}
+
+.video-title {
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.video-time-display {
+    color: white;
+    font-size: 14px;
+    font-weight: 300;
+    min-width: 100px;
 }
 
 .control-btn {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     background: transparent;
     border: none;
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -425,141 +577,9 @@ body {
 }
 
 .control-btn img {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     filter: brightness(0) invert(1);
-}
-
-/* 时间预览提示 */
-.time-preview {
-    position: absolute;
-    bottom: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    pointer-events: none;
-}
-
-.time-preview.show {
-    display: flex;
-}
-
-.time-preview-thumbnail {
-    background: #D9D9D9;
-    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.25);
-    border-radius: 8px;
-    outline: 1px white solid;
-    padding: 8px 12px;
-}
-
-.time-preview-time {
-    color: #151010;
-    font-size: 14px;
-    font-weight: 400;
-    text-align: center;
-}
-
-.time-preview-indicator img {
-    width: 12px;
-    height: 12px;
-    filter: brightness(0) invert(1);
-    display: block;
-}
-
-/* 摄像头控制 */
-.camera-controls {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.btn-camera {
-    padding: 0.6rem 1.2rem;
-    border: 1px solid #495057;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    background-color: #343a40;
-    color: #f8f9fa;
-    transition: all 0.2s ease;
-}
-
-.btn-camera:hover {
-    background-color: #495057;
-    border-color: #6c757d;
-}
-
-.btn-camera.active {
-    background-color: #007bff;
-    border-color: #007bff;
-    color: white;
-    font-weight: bold;
-}
-
-/* 多摄像头同步显示区域 */
-.multi-camera-section {
-    flex: 1;
-    min-height: 200px;
-}
-
-.camera-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    height: 100%;
-}
-
-.camera-view {
-    position: relative;
-    background: #000;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 2px solid #495057;
-    transition: border-color 0.2s ease;
-}
-
-.camera-view:hover {
-    border-color: #007bff;
-}
-
-.camera-view video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.camera-label {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.video-info-bar {
-    display: flex;
-    justify-content: space-around;
-    background-color: #343a40;
-    color: #f8f9fa;
-    padding: 0.75rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-}
-
-.info-item {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.info-item strong {
-    color: #adb5bd;
 }
 
 /* 响应式设计 */
