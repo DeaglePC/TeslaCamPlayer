@@ -19,61 +19,14 @@ body {
     height: 100%;
     display: flex;
     flex-direction: row;
-}
-
-/* Header */
-.header {
-    background: #ffffff;
-    padding: 0.75rem 1.5rem;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-shrink: 0;
-}
-
-.header h1 {
-    font-size: 1.25rem;
-    font-weight: 600;
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.controls {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.btn {
-    padding: 0.5rem 1rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    background-color: #fff;
-    transition: all 0.2s ease;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-.btn-primary:hover {
-    background-color: #0069d9;
+    overflow: hidden; /* Prevent layout shifts from scrollbars */
 }
 
 /* Main Content */
 .main-content {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    flex: 1;
     overflow: hidden;
     position: relative;
 }
@@ -112,42 +65,18 @@ body {
 /* Sidebar */
 .sidebar {
     width: 380px;
-    min-width: 320px;
+    min-width: 380px;
     background: #f8f9fa;
     border-right: 1px solid #ddd;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    transition: margin-left 0.3s ease;
-    position: relative; /* Ensure footer is positioned relative to sidebar */
+    transition: margin-left 0.3s ease-in-out;
+    position: relative;
 }
 
 .sidebar.collapsed {
     margin-left: -380px;
-}
-
-.sidebar-toggle-btn {
-    background: transparent;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.5rem;
-    line-height: 1;
-    color: #6c757d;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease, transform 0.3s ease;
-}
-
-.sidebar-toggle-btn:hover {
-    background-color: #e9ecef;
-}
-
-.sidebar-toggle-btn.collapsed {
-    transform: rotate(180deg);
 }
 
 .sidebar-header {
@@ -156,17 +85,17 @@ body {
     background-color: #fff;
 }
 
-.sidebar-header h3 {
+.sidebar-header h2 {
     margin-bottom: 1rem;
-    font-size: 1.1rem;
+    font-size: 1.25rem;
 }
 
-.filter-controls {
+.filters {
     display: flex;
     gap: 0.5rem;
 }
 
-.date-filter, .event-filter {
+#dateFilter, #eventFilter {
     flex: 1;
     padding: 0.5rem;
     border: 1px solid #ccc;
@@ -178,8 +107,7 @@ body {
     overflow-y: auto;
     padding: 1rem;
     min-height: 0;
-    /* Add padding to prevent content from being hidden by the sticky footer */
-    padding-bottom: 90px;
+    padding-bottom: 90px; /* Space for the footer */
 }
 
 .empty-state {
@@ -304,39 +232,6 @@ body {
     background-color: #0056b3;
 }
 
-.controls-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0 15px;
-}
-
-.controls-left, .controls-center, .controls-right {
-    display: flex;
-    align-items: center;
-    flex: 1;
-}
-
-.controls-left {
-    justify-content: flex-start;
-}
-
-.controls-center {
-    justify-content: center;
-}
-
-.controls-right {
-    justify-content: flex-end;
-}
-
-.real-time-clock {
-    font-size: 0.9em;
-    min-width: 70px;
-    text-align: right;
-    color: white;
-}
-
 /* Player Area */
 .player-area {
     flex: 1;
@@ -409,9 +304,7 @@ body {
     font-size: 14px;
 }
 
-.video-container::before {
-    content: attr(data-camera);
-    text-transform: capitalize;
+.camera-label {
     position: absolute;
     top: 8px;
     left: 8px;
@@ -426,7 +319,7 @@ body {
     transition: opacity 0.2s;
 }
 
-.video-container.is-pip::before {
+.video-container.is-pip .camera-label {
     opacity: 1;
 }
 
@@ -438,18 +331,17 @@ body {
     right: 0;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
     color: white;
-    opacity: 0; /* Hidden by default */
+    opacity: 0;
     transition: opacity 0.3s ease;
     padding: 10px 20px;
-    box-sizing: border-box;
-    pointer-events: none; /* Allow clicks to pass through when hidden */
-    z-index: 40; /* Sit on top of PiP videos (z-index: 20) */
+    z-index: 40;
+    pointer-events: none;
 }
 
-/* Show controls on hover of the player area */
-.player-area:hover .video-controls-overlay {
+.player-area:hover .video-controls-overlay,
+.video-controls-overlay.show {
     opacity: 1;
-    pointer-events: all; /* Capture clicks when visible */
+    pointer-events: all;
 }
 
 .video-controls-container {
@@ -459,10 +351,9 @@ body {
     gap: 8px;
 }
 
-/* Progress Bar */
 .progress-container {
     width: 100%;
-    height: 20px; /* Taller for easier hovering */
+    height: 20px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -497,17 +388,18 @@ body {
     transform: translate(-50%, -50%);
     left: 0;
     z-index: 2;
-    opacity: 0; /* Hidden by default, shown on hover */
+    opacity: 0;
     transition: opacity 0.2s ease;
 }
 
-.progress-container:hover .progress-handle {
+.progress-container:hover .progress-handle,
+.progress-container:hover .time-preview {
     opacity: 1;
 }
 
 .time-preview {
     position: absolute;
-    bottom: 25px; /* Position above the progress bar */
+    bottom: 25px;
     background-color: rgba(0, 0, 0, 0.8);
     color: #fff;
     padding: 5px 8px;
@@ -515,11 +407,15 @@ body {
     font-size: 0.9em;
     transform: translateX(-50%);
     white-space: nowrap;
-    display: none; /* Hidden by default, shown from JS */
+    opacity: 0;
     pointer-events: none;
+    transition: opacity 0.2s ease;
 }
 
-/* Bottom Controls Section */
+.time-preview.show {
+    opacity: 1;
+}
+
 .controls-section {
     display: flex;
     justify-content: space-between;
@@ -544,12 +440,6 @@ body {
 
 .controls-right {
     justify-content: flex-end;
-}
-
-.video-title {
-    color: white;
-    font-size: 16px;
-    font-weight: 500;
 }
 
 .video-time-display {
@@ -582,35 +472,30 @@ body {
     filter: brightness(0) invert(1);
 }
 
-/* 响应式设计 */
-@media (max-width: 992px) {
-    .sidebar {
-        width: 320px;
-    }
-    
-    .video-controls-overlay {
-        padding: 12px 20px;
-    }
-    
-    .video-title {
-        font-size: 20px;
-    }
-    
-    .video-subtitle,
-    .video-time-display {
-        font-size: 14px;
-    }
-    
-    .camera-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+.real-time-clock {
+    font-size: 0.9em;
+    min-width: 70px;
+    text-align: right;
+    color: white;
 }
 
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.overlay.active {
+    display: block;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-    .main-content {
-        flex-direction: column;
-    }
-    
     .sidebar {
         position: absolute;
         top: 0;
@@ -619,148 +504,17 @@ body {
         max-width: 380px;
         height: 100%;
         z-index: 1000;
+        min-width: unset;
+        
+        /* Override desktop animation and use transform for overlay effect */
+        margin-left: 0;
         transform: translateX(0);
         transition: transform 0.3s ease-in-out;
-        border-right: 1px solid #ddd;
-        min-width: unset;
     }
 
     .sidebar.collapsed {
+        /* Override desktop animation and use transform */
         margin-left: 0;
         transform: translateX(-100%);
     }
-
-    .sidebar-overlay {
-        display: none;
-    }
-
-    .sidebar-overlay.active {
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-    }
-    
-    .video-area {
-        flex-direction: column;
-    }
-    
-    .main-player-section {
-        flex: 1;
-    }
-    
-    .multi-camera-section {
-        flex: 0 0 150px;
-    }
-    
-    .camera-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.5rem;
-    }
-    
-    .player-container {
-        border-radius: 20px;
-    }
-    
-    #main-player {
-        border-radius: 20px;
-    }
-    
-    .video-controls-overlay {
-        padding: 8px 16px;
-    }
-    
-    .controls-left,
-    .controls-right {
-        gap: 4px;
-    }
-    
-    .control-btn {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .control-btn img {
-        width: 20px;
-        height: 20px;
-    }
-}
-
-/* 全屏模式样式 */
-.player-container.fullscreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 9999;
-    border-radius: 0;
-}
-
-.player-container.fullscreen #main-player {
-    border-radius: 0;
-}
-
-/* 加载状态 */
-.player-container.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 40px;
-    height: 40px;
-    margin: -20px 0 0 -20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top: 3px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* 错误状态 */
-.player-container.error {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 18px;
-}
-
-.player-container.error::before {
-    content: '⚠️ 视频加载失败';
-}
-
-/* 同步播放指示器 */
-.camera-view.syncing::after {
-    content: '同步中...';
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    background: rgba(255, 193, 7, 0.9);
-    color: #000;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: bold;
-}
-
-.camera-view.error::after {
-    content: '无视频';
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    background: rgba(220, 53, 69, 0.9);
-    color: white;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: bold;
 }
