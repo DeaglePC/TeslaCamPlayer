@@ -592,9 +592,37 @@ body {
     }
     
     .sidebar {
-        width: 100%;
-        height: 30vh;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 85%;
+        max-width: 380px;
+        height: 100%;
+        z-index: 1000;
+        transform: translateX(0);
+        transition: transform 0.3s ease-in-out;
+        border-right: 1px solid #ddd;
         min-width: unset;
+    }
+
+    .sidebar.collapsed {
+        margin-left: 0;
+        transform: translateX(-100%);
+    }
+
+    .sidebar-overlay {
+        display: none;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
     }
     
     .video-area {

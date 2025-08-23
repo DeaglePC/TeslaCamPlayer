@@ -693,6 +693,7 @@ class TeslaCamViewer {
             cameraButtons: document.querySelectorAll('.btn-camera'),
             sidebar: document.querySelector('.sidebar'),
             toggleSidebarBtn: document.getElementById('toggleSidebarBtn'),
+            sidebarOverlay: document.getElementById('sidebarOverlay'),
         };
 
         this.videoListComponent = new VideoListComponent('fileList', (eventId) => this.playEvent(eventId));
@@ -720,6 +721,7 @@ class TeslaCamViewer {
         });
 
         this.dom.toggleSidebarBtn.addEventListener('click', () => this.toggleSidebar());
+        this.dom.sidebarOverlay.addEventListener('click', () => this.toggleSidebar());
 
         // 定期更新视频信息
         setInterval(() => {
@@ -867,6 +869,10 @@ class TeslaCamViewer {
         const isCollapsed = this.dom.sidebar.classList.contains('collapsed');
         this.dom.toggleSidebarBtn.classList.toggle('collapsed', isCollapsed);
         this.dom.toggleSidebarBtn.title = isCollapsed ? '展开侧边栏' : '收起侧边栏';
+
+        if (window.innerWidth <= 768) {
+            this.dom.sidebarOverlay.classList.toggle('active', !isCollapsed);
+        }
     }
 
     async switchCamera(camera) {
