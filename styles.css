@@ -479,6 +479,52 @@ body {
     color: white;
 }
 
+.speed-control {
+    position: relative;
+}
+
+.speed-btn {
+    width: auto;
+    padding: 0 12px;
+    font-size: 14px;
+    color: white;
+}
+
+.speed-options {
+    display: none;
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(40, 40, 40, 0.9);
+    border-radius: 6px;
+    margin-bottom: 5px; /* Reduced margin to prevent gap issue */
+    padding: 5px 0;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+}
+
+.speed-control.active .speed-options {
+    display: block;
+}
+
+.speed-options div {
+    padding: 8px 20px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.speed-options div:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.speed-options div.active {
+    background-color: rgba(0, 123, 255, 0.8);
+    font-weight: bold;
+}
+
 .overlay {
     display: none;
     position: fixed;

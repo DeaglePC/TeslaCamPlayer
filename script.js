@@ -86,6 +86,7 @@ class MultiCameraPlayer {
         this.activeCamera = 'front';
         this.isPlaying = false;
         this.isSeeking = false;
+        this.playbackRate = 1.0;
     }
 
     setActive(cameraType) {
@@ -105,7 +106,6 @@ class MultiCameraPlayer {
             const container = this.playerContainers[key];
             if (!container) return;
 
-            // More robustly remove old classes instead of wiping className
             container.classList.remove('is-main', 'is-pip', 'hidden', ...positionClasses);
             container.dataset.camera = key;
 
@@ -114,7 +114,6 @@ class MultiCameraPlayer {
             } else if (pipMapping[key]) {
                 container.classList.add('is-pip', `pos-${pipMapping[key]}`);
             } else {
-                // This case shouldn't be hit with current layout, but as a fallback:
                 container.classList.add('is-pip', 'hidden');
             }
         });
@@ -131,6 +130,9 @@ class MultiCameraPlayer {
             if (file && player) {
                 this.currentUrls[camera] = URL.createObjectURL(file);
                 player.src = this.currentUrls[camera];
+                // Re-apply the rate here as cleanup() / .src change resets the player state.
+                player.defaultPlaybackRate = this.playbackRate;
+                player.playbackRate = this.playbackRate;
                 if(cameraView) cameraView.classList.remove('error', 'empty');
             } else {
                 if (player) player.src = '';
@@ -194,6 +196,16 @@ class MultiCameraPlayer {
             if (this.currentUrls[key]) {
                 URL.revokeObjectURL(this.currentUrls[key]);
                 this.currentUrls[key] = null;
+            }
+        });
+    }
+
+    setPlaybackRate(rate) {
+        this.playbackRate = rate;
+        Object.values(this.players).forEach(p => {
+            if (p) {
+                p.defaultPlaybackRate = rate;
+                p.playbackRate = rate;
             }
         });
     }
@@ -283,12 +295,10 @@ class ContinuousVideoPlayer {
         if (this.currentSegmentIndex < this.currentEvent.segments.length - 1) {
             this.isTransitioning = true;
             await this.loadSegment(this.currentSegmentIndex + 1);
-            // Always attempt to play the next segment to ensure seamless transition.
             await this.multiCameraPlayer.playAll();
             this.isTransitioning = false;
         } else {
             console.log("All segments played.");
-            // Optionally, handle the end of the entire event, e.g., pause.
             this.multiCameraPlayer.pauseAll();
         }
     }
@@ -323,13 +333,12 @@ class ModernVideoControls {
     constructor(continuousPlayer) {
         this.continuousPlayer = continuousPlayer;
         this.multiCameraPlayer = continuousPlayer.multiCameraPlayer;
-        this.player = this.multiCameraPlayer.players.front; // Use front as stable reference for events
+        this.player = this.multiCameraPlayer.players.front;
         this.container = document.getElementById('playerArea');
         this.totalDuration = 0;
         this.isPlaying = false;
         this.isDragging = false;
         this.wasPlaying = false;
-        this.controlsTimeout = null;
         this.currentEventStartTime = null;
         this.initializeElements();
         this.bindEvents();
@@ -346,16 +355,19 @@ class ModernVideoControls {
         this.videoTimeDisplay = this.container.querySelector('#videoTimeDisplay');
         this.timePreview = this.container.querySelector('#timePreview');
         this.realTimeClock = this.container.querySelector('#realTimeClock');
+        this.speedControl = this.container.querySelector('#speedControl');
+        this.speedBtn = this.container.querySelector('#speedBtn');
+        this.speedOptions = this.container.querySelector('.speed-options');
     }
 
     bindEvents() {
         if (this.playPauseBtn) this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
-        
+
         if (this.progressContainer) {
             this.progressContainer.addEventListener('mousedown', (e) => this.startDrag(e));
             document.addEventListener('mousemove', (e) => this.onDrag(e));
             document.addEventListener('mouseup', (e) => this.stopDrag(e));
-            
+
             this.progressContainer.addEventListener('mousemove', (e) => {
                 if (!this.isDragging) this.showTimePreview(e);
             });
@@ -371,10 +383,34 @@ class ModernVideoControls {
             this.player.addEventListener('play', () => this.updatePlayState(true));
             this.player.addEventListener('pause', () => this.updatePlayState(false));
         }
+
         if (this.container) {
-            this.container.addEventListener('mousemove', () => this.showControls());
+            this.container.addEventListener('mouseenter', () => this.showControls());
             this.container.addEventListener('mouseleave', () => this.hideControls());
         }
+
+        if (this.speedBtn) {
+            this.speedBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.speedControl.classList.toggle('active');
+            });
+        }
+
+        if (this.speedOptions) {
+            this.speedOptions.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (e.target.dataset.speed) {
+                    this.setSpeed(parseFloat(e.target.dataset.speed));
+                    this.speedControl.classList.remove('active');
+                }
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (this.speedControl && this.speedControl.classList.contains('active') && !this.speedControl.contains(e.target)) {
+                this.speedControl.classList.remove('active');
+            }
+        });
     }
 
     setTotalDuration(duration) {
@@ -482,12 +518,15 @@ class ModernVideoControls {
             const currentTime = this.continuousPlayer.getCurrentTime();
             newTime.setSeconds(newTime.getSeconds() + currentTime);
 
-            this.realTimeClock.textContent = newTime.toLocaleTimeString('zh-CN', {
+            this.realTimeClock.textContent = newTime.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
                 hour12: false
-            });
+            }).replace(/\//g, '-');
         } catch (e) {
             this.realTimeClock.textContent = '错误';
             console.error("Error updating real-time clock:", e);
@@ -497,7 +536,6 @@ class ModernVideoControls {
     updatePlayState(playing) {
         this.isPlaying = playing;
         this.multiCameraPlayer.isPlaying = playing;
-        // Last attempt to set the correct pause icon (two vertical lines).
         this.playPauseIcon.src = playing ? 'assets/CodeBubbyAssets/2_38/2.svg' : 'assets/CodeBubbyAssets/2_38/10.svg';
         this.playPauseIcon.alt = playing ? '暂停' : '播放';
     }
@@ -517,11 +555,27 @@ class ModernVideoControls {
 
     showControls() {
         this.overlay.classList.add('show');
-        clearTimeout(this.controlsTimeout);
-        this.controlsTimeout = setTimeout(() => { if (this.isPlaying) this.hideControls(); }, 3000);
     }
 
-    hideControls() { this.overlay.classList.remove('show'); }
+    hideControls() {
+        if (this.speedControl?.classList.contains('active')) {
+            return;
+        }
+        this.overlay.classList.remove('show');
+    }
+
+    setSpeed(rate) {
+        this.multiCameraPlayer.setPlaybackRate(rate);
+        this.speedBtn.textContent = `${rate.toFixed(1)}x`;
+        
+        this.speedOptions.querySelectorAll('div').forEach(div => {
+            div.classList.remove('active');
+        });
+        const activeOption = this.speedOptions.querySelector(`[data-speed="${rate.toFixed(1)}"]`);
+        if (activeOption) {
+            activeOption.classList.add('active');
+        }
+    }
 }
 
 class TeslaCamViewer {
@@ -615,14 +669,11 @@ class TeslaCamViewer {
             await this.continuousPlayer.calculateEventDurations(event);
         }
 
-        // Load the first segment which implicitly loads all 4 camera views
         await this.continuousPlayer.loadEvent(event); 
         this.videoControls.setTotalDuration(this.continuousPlayer.getTotalDuration());
         
-        // Now that videos are loaded, set the active layout
         this.multiCameraPlayer.setActive('front');
 
-        // Then play
         await this.multiCameraPlayer.playAll();
 
         document.querySelectorAll('.video-card.active').forEach(c => c.classList.remove('active'));
@@ -638,11 +689,9 @@ class TeslaCamViewer {
     toggleSidebar(forceState) {
         let isNowCollapsed;
         if (typeof forceState !== 'undefined') {
-            // forceState: true means visible, false means hidden (collapsed)
             isNowCollapsed = !forceState;
             this.dom.sidebar.classList.toggle('collapsed', isNowCollapsed);
         } else {
-            // Just toggle
             isNowCollapsed = this.dom.sidebar.classList.toggle('collapsed');
         }
         
