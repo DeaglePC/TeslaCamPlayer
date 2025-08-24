@@ -1,4 +1,4 @@
-const i18n = {
+ const i18n = {
     en: {
         pageTitle: "TeslaCam Player",
         headerTitle: "TeslaCam Player",
@@ -16,7 +16,10 @@ const i18n = {
         selectFolder: "📁 Select Folder",
         helpStep1: "Insert your Tesla USB drive into your PC",
         helpStep2: "Select the 'TeslaCam' directory from the drive",
-        helpNote: "Note: This tool does not upload your data. All operations are performed locally.",
+        helpNote: "Note: This tool does not upload your data. All operations are performed locally. (Gaode Maps may have inaccuracies due to limited WGS-84 support.)",
+        mapModalTitle: "View on Map",
+        gaodeMap: "Gaode Map",
+        googleMap: "Google Map",
         minutes: "minutes",
         preview: "Preview",
         noSignal: "No Signal",
@@ -46,7 +49,10 @@ const i18n = {
         selectFolder: "📁 选择文件夹",
         helpStep1: "插入特斯拉U盘到你的PC",
         helpStep2: "选择U盘中的TeslaCam目录",
-        helpNote: "注意：本工具不会上传你的数据，一切操作都是本地行为。",
+        helpNote: "注意：本工具不会上传你的数据，一切操作都是本地行为。（由于高德对WGS-84支持不够，所以高德地图有误差）",
+        mapModalTitle: "在地图上查看",
+        gaodeMap: "高德地图",
+        googleMap: "谷歌地图",
         minutes: "分钟",
         preview: "预览图",
         noSignal: "无信号",
@@ -60,6 +66,51 @@ const i18n = {
         toggleNight: "切换到夜间模式",
     }
 };
+
+// --- Coordinate Conversion Functions ---
+const x_pi = 3.14159265358979324 * 3000.0 / 180.0;
+const PI = 3.1415926535897932384626;
+const a = 6378245.0;
+const ee = 0.00669342162296594323;
+
+function transformlat(lng, lat) {
+    let ret = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
+    ret += (20.0 * Math.sin(6.0 * lng * PI) + 20.0 * Math.sin(2.0 * lng * PI)) * 2.0 / 3.0;
+    ret += (20.0 * Math.sin(lat * PI) + 40.0 * Math.sin(lat / 3.0 * PI)) * 2.0 / 3.0;
+    ret += (160.0 * Math.sin(lat / 12.0 * PI) + 320 * Math.sin(lat * PI / 30.0)) * 2.0 / 3.0;
+    return ret;
+}
+
+function transformlng(lng, lat) {
+    let ret = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
+    ret += (20.0 * Math.sin(6.0 * lng * PI) + 20.0 * Math.sin(2.0 * lng * PI)) * 2.0 / 3.0;
+    ret += (20.0 * Math.sin(lng * PI) + 40.0 * Math.sin(lng / 3.0 * PI)) * 2.0 / 3.0;
+    ret += (150.0 * Math.sin(lng / 12.0 * PI) + 300.0 * Math.sin(lng / 30.0 * PI)) * 2.0 / 3.0;
+    return ret;
+}
+
+function wgs84togcj02(lng, lat) {
+    let dlat = transformlat(lng - 105.0, lat - 35.0);
+    let dlng = transformlng(lng - 105.0, lat - 35.0);
+    const radlat = lat / 180.0 * PI;
+    let magic = Math.sin(radlat);
+    magic = 1 - ee * magic * magic;
+    const sqrtmagic = Math.sqrt(magic);
+    dlat = (dlat * 180.0) / ((a * (1 - ee)) / (magic * sqrtmagic) * PI);
+    dlng = (dlng * 180.0) / (a / sqrtmagic * Math.cos(radlat) * PI);
+    const mglat = lat + dlat;
+    const mglng = lng + dlng;
+    return [mglng, mglat];
+}
+
+function gcj02tobd09(lng, lat) {
+    const z = Math.sqrt(lng * lng + lat * lat) + 0.00002 * Math.sin(lat * x_pi);
+    const theta = Math.atan2(lat, lng) + 0.000003 * Math.cos(lng * x_pi);
+    const bd_lng = z * Math.cos(theta) + 0.0065;
+    const bd_lat = z * Math.sin(theta) + 0.006;
+    return [bd_lng, bd_lat];
+}
+// --- End Coordinate Conversion ---
 
 class VideoListComponent {
     constructor(elementId, eventHandler, viewer) {
@@ -97,8 +148,7 @@ class VideoListComponent {
         const card = document.createElement('div');
         card.className = 'video-card';
         card.dataset.eventId = event.eventId;
-        card.onclick = () => this.eventHandler(event.eventId);
-
+        
         const thumbnailDiv = document.createElement('div');
         thumbnailDiv.className = 'video-thumbnail';
         if (event.thumbFile) {
@@ -121,14 +171,32 @@ class VideoListComponent {
         infoDiv.className = 'video-info';
         const startTime = this.parseTimestamp(firstSegment.timestamp);
         const timeString = startTime.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-        const cityPrefix = event.city ? `${event.city} ` : '';
+        
+        let cityHtml = '';
+        if (event.city && event.lat && event.lon) {
+            cityHtml = `<span class="city-link" data-lat="${event.lat}" data-lon="${event.lon}">${event.city}</span> `;
+        } else if (event.city) {
+            cityHtml = `${event.city} `;
+        }
+
         const eventTypeLabel = this.getEventTypeLabel(event.eventType);
 
         infoDiv.innerHTML = `
-            <div class="video-time">${cityPrefix}${timeString}</div>
+            <div class="video-time">${cityHtml}${timeString}</div>
             <div class="video-type" title="${eventTypeLabel}">${eventTypeLabel.split(' ')[0]}</div>
         `;
         card.appendChild(infoDiv);
+        
+        // Attach event listener to the card, but check for city-link target
+        card.onclick = (e) => {
+            if (e.target.classList.contains('city-link')) {
+                e.stopPropagation(); // Prevent card click from firing
+                this.viewer.showMapModal(e.target.dataset.lat, e.target.dataset.lon);
+            } else {
+                this.eventHandler(event.eventId);
+            }
+        };
+
         return card;
     }
 
@@ -653,6 +721,35 @@ class ModernVideoControls {
             activeOption.classList.add('active');
         }
     }
+
+    addEventMarkers(event) {
+        if (!this.progressContainer) return;
+        // Clear previous markers
+        this.progressContainer.querySelectorAll('.event-marker').forEach(m => m.remove());
+
+        if (!event.eventTimestamp || !event.startTime || !this.totalDuration) {
+            return;
+        }
+
+        try {
+            const eventTime = new Date(event.eventTimestamp);
+            const videoStartTime = this.parseTimestamp(event.startTime);
+            
+            const timeOffset = (eventTime.getTime() - videoStartTime.getTime()) / 1000;
+
+            if (timeOffset >= 0 && timeOffset <= this.totalDuration) {
+                const positionPercent = (timeOffset / this.totalDuration) * 100;
+                
+                const marker = document.createElement('div');
+                marker.className = 'event-marker';
+                marker.style.left = `${positionPercent}%`;
+                marker.title = `Event: ${eventTime.toLocaleTimeString()}`;
+                this.progressContainer.appendChild(marker);
+            }
+        } catch (e) {
+            console.error("Error creating event marker:", e);
+        }
+    }
 }
 
 class TeslaCamViewer {
@@ -661,6 +758,7 @@ class TeslaCamViewer {
         this.eventGroups = [];
         this.currentEvent = null;
         this.currentLanguage = 'zh';
+        this.currentMapCoordinates = null;
         this.dom = {
             folderInput: document.getElementById('folderInput'),
             selectFolderBtn: document.getElementById('selectFolderBtn'),
@@ -672,6 +770,11 @@ class TeslaCamViewer {
             overlay: document.getElementById('overlay'),
             themeToggleBtn: document.getElementById('themeToggleBtn'),
             langToggleBtn: document.getElementById('langToggleBtn'),
+            mapModal: document.getElementById('mapModal'),
+            mapModalTitle: document.getElementById('mapModalTitle'),
+            gaodeMapBtn: document.getElementById('gaodeMapBtn'),
+            googleMapBtn: document.getElementById('googleMapBtn'),
+            closeModalBtn: document.getElementById('closeModalBtn'),
         };
         this.videoListComponent = new VideoListComponent('fileList', (eventId) => this.playEvent(eventId), this);
         this.multiCameraPlayer = new MultiCameraPlayer();
@@ -704,6 +807,16 @@ class TeslaCamViewer {
                 this.updateThemeIcon(isDark);
             }
         });
+
+        // Map Modal Listeners
+        this.dom.closeModalBtn.addEventListener('click', () => this.hideMapModal());
+        this.dom.mapModal.addEventListener('click', (e) => {
+            if (e.target === this.dom.mapModal) {
+                this.hideMapModal();
+            }
+        });
+        this.dom.gaodeMapBtn.addEventListener('click', () => this.openMap('gaode'));
+        this.dom.googleMapBtn.addEventListener('click', () => this.openMap('google'));
     }
 
     handleGlobalKeydown(e) {
@@ -746,7 +859,11 @@ class TeslaCamViewer {
             if (eventMap.has(eventId)) {
                 try {
                     const eventData = JSON.parse(await jsonFile.text());
-                    eventMap.get(eventId).city = eventData.city;
+                    const eventObj = eventMap.get(eventId);
+                    eventObj.city = eventData.city;
+                    eventObj.eventTimestamp = eventData.timestamp;
+                    eventObj.lat = eventData.est_lat;
+                    eventObj.lon = eventData.est_lon;
                 } catch (e) {
                     console.error(`Error parsing event.json for ${eventId}:`, e);
                 }
@@ -788,6 +905,7 @@ class TeslaCamViewer {
 
         await this.continuousPlayer.loadEvent(event); 
         this.videoControls.setTotalDuration(this.continuousPlayer.getTotalDuration());
+        this.videoControls.addEventMarkers(event);
         
         this.multiCameraPlayer.setActive('front');
 
@@ -873,6 +991,9 @@ class TeslaCamViewer {
         this.dom.langToggleBtn.title = translations.toggleLanguage;
         this.dom.themeToggleBtn.title = translations.toggleTheme;
         this.dom.toggleSidebarBtn.title = translations.toggleSidebar;
+        this.dom.mapModalTitle.textContent = translations.mapModalTitle;
+        this.dom.gaodeMapBtn.textContent = translations.gaodeMap;
+        this.dom.googleMapBtn.textContent = translations.googleMap;
 
         document.querySelector('.sidebar-header h2').textContent = translations.drivingRecords;
         document.querySelector('.filter-group label[for="dateFilter"]').textContent = translations.date;
@@ -905,6 +1026,38 @@ class TeslaCamViewer {
         
         this.dom.toggleSidebarBtn.classList.toggle('collapsed', isNowCollapsed);
         this.dom.overlay.classList.toggle('active', !isNowCollapsed && window.innerWidth < 768);
+    }
+
+    showMapModal(lat, lon) {
+        this.currentMapCoordinates = { lat, lon };
+        this.dom.mapModal.style.display = 'flex';
+        setTimeout(() => this.dom.mapModal.classList.add('show'), 10);
+    }
+
+    hideMapModal() {
+        this.dom.mapModal.classList.remove('show');
+        setTimeout(() => {
+            this.dom.mapModal.style.display = 'none';
+            this.currentMapCoordinates = null;
+        }, 300);
+    }
+
+    openMap(type) {
+        if (!this.currentMapCoordinates) return;
+        const { lat, lon } = this.currentMapCoordinates;
+        let url;
+        if (type === 'gaode') {
+            // Convert WGS-84 (GPS) to GCJ-02 (Gaode/AMap) for accuracy
+            const gcj02 = wgs84togcj02(parseFloat(lon), parseFloat(lat));
+            const gcj_lon = gcj02[0];
+            const gcj_lat = gcj02[1];
+            // Gaode URI API uses lon,lat order and GCJ-02 coordinates
+            url = `https://uri.amap.com/marker?position=${gcj_lon},${gcj_lat}&name=事件位置`;
+        } else { // google
+            url = `https://www.google.com/maps?q=${lat},${lon}`;
+        }
+        window.open(url, '_blank');
+        this.hideMapModal();
     }
 
     getEventType(path) {
