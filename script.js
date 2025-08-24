@@ -230,6 +230,7 @@ class MultiCameraPlayer {
         this.isPlaying = false;
         this.isSeeking = false;
         this.playbackRate = 1.0;
+        this.lastSyncTime = 0;
     }
 
     setActive(cameraType) {
@@ -300,6 +301,13 @@ class MultiCameraPlayer {
 
     async syncAllPlayers() {
         if (this.isSeeking) return;
+
+        const now = performance.now();
+        if (now - this.lastSyncTime < 100) { // Throttle to max 10 times per second
+            return;
+        }
+        this.lastSyncTime = now;
+
         const mainPlayer = this.players[this.activeCamera];
         if (!mainPlayer || !mainPlayer.src) return;
         const currentTime = mainPlayer.currentTime;
