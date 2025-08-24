@@ -2,7 +2,7 @@
 
 A modern, browser-based viewer for your TeslaCam footage. Play all four camera angles (Front, Back, Left, Right) simultaneously with a sleek and intuitive interface.
 
-![Screenshot](https://user-images.githubusercontent.com/12345/screenshot-placeholder.png) <!-- Placeholder for a screenshot -->
+![Screenshot](screenshot.png)
 
 ## ✨ Features
 
@@ -67,7 +67,7 @@ MIT License
 
 一个现代化的、基于浏览器的 TeslaCam 录像查看器。通过一个清爽直观的界面，同步播放所有四个摄像头（前、后、左、右）的画面。
 
-![截图](https://user-images.githubusercontent.com/12345/screenshot-placeholder.png) <!-- 截图占位符 -->
+![截图](screenshot.png)
 
 ## ✨ 功能特性
 
