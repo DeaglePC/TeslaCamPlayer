@@ -636,10 +636,18 @@ class TeslaCamViewer {
     }
 
     toggleSidebar(forceState) {
-        const isCollapsed = typeof forceState !== 'undefined' ? !forceState : this.dom.sidebar.classList.contains('collapsed');
-        this.dom.sidebar.classList.toggle('collapsed', isCollapsed);
-        this.dom.toggleSidebarBtn.classList.toggle('collapsed', isCollapsed);
-        this.dom.overlay.classList.toggle('active', !isCollapsed && window.innerWidth < 768);
+        let isNowCollapsed;
+        if (typeof forceState !== 'undefined') {
+            // forceState: true means visible, false means hidden (collapsed)
+            isNowCollapsed = !forceState;
+            this.dom.sidebar.classList.toggle('collapsed', isNowCollapsed);
+        } else {
+            // Just toggle
+            isNowCollapsed = this.dom.sidebar.classList.toggle('collapsed');
+        }
+        
+        this.dom.toggleSidebarBtn.classList.toggle('collapsed', isNowCollapsed);
+        this.dom.overlay.classList.toggle('active', !isNowCollapsed && window.innerWidth < 768);
     }
 
     getEventType(path) {
