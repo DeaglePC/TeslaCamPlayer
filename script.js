@@ -841,7 +841,7 @@ class TeslaCamViewer {
         document.querySelector('#eventFilter option[value="SavedClips"]').textContent = translations.savedClips;
         document.querySelector('#eventFilter option[value="SentryClips"]').textContent = translations.sentryClips;
         document.querySelector('#selectFolderBtn').textContent = translations.selectFolder;
-        document.querySelector('.header-title').textContent = translations.headerTitle;
+        document.querySelector('.header-title span').textContent = translations.headerTitle;
 
         const emptyState = document.querySelector('.empty-state p');
         if (emptyState) {

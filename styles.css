@@ -116,15 +116,21 @@ body {
 }
 
 .header-title {
-    font-size: 1.1rem;
-    font-weight: 600;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
 }
 
-.main-header .toggle-sidebar-btn {
-    /* No change needed, just for context */
+.header-logo {
+    width: 28px;
+    height: 28px;
+    margin-right: 10px;
 }
 
 .main-header .theme-toggle-btn {
