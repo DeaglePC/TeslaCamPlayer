@@ -592,12 +592,15 @@ class TeslaCamViewer {
             toggleSidebarBtn: document.getElementById('toggleSidebarBtn'),
             playerArea: document.getElementById('playerArea'),
             overlay: document.getElementById('overlay'),
+            themeToggleBtn: document.getElementById('themeToggleBtn'),
+            themeIcon: document.getElementById('themeIcon'),
         };
         this.videoListComponent = new VideoListComponent('fileList', (eventId) => this.playEvent(eventId));
         this.multiCameraPlayer = new MultiCameraPlayer();
         this.continuousPlayer = new ContinuousVideoPlayer(this.multiCameraPlayer);
         this.videoControls = new ModernVideoControls(this.continuousPlayer);
         this.initializeEventListeners();
+        this.loadTheme();
     }
 
     initializeEventListeners() {
@@ -611,7 +614,17 @@ class TeslaCamViewer {
             const container = e.target.closest('.video-container.is-pip');
             if (container) this.switchCamera(container.dataset.camera);
         });
+        this.dom.themeToggleBtn.addEventListener('click', () => this.toggleTheme());
         document.addEventListener('keydown', (e) => this.handleGlobalKeydown(e));
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            // Only apply if the user hasn't manually set a theme
+            if (!localStorage.getItem('theme')) {
+                const isDark = e.matches;
+                document.body.classList.toggle('dark-theme', isDark);
+                this.updateThemeIcon(isDark);
+            }
+        });
     }
 
     handleGlobalKeydown(e) {
@@ -695,6 +708,31 @@ class TeslaCamViewer {
     switchCamera(camera) {
         if (camera === this.multiCameraPlayer.activeCamera || !this.currentEvent) return;
         this.multiCameraPlayer.setActive(camera);
+    }
+
+    toggleTheme() {
+        const isDark = document.body.classList.toggle('dark-theme');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        this.updateThemeIcon(isDark);
+    }
+
+    loadTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        let isDark;
+        if (savedTheme) {
+            isDark = savedTheme === 'dark';
+        } else {
+            isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        document.body.classList.toggle('dark-theme', isDark);
+        this.updateThemeIcon(isDark);
+    }
+
+    updateThemeIcon(isDark) {
+        if (this.dom.themeToggleBtn) {
+            this.dom.themeToggleBtn.textContent = isDark ? '🌙' : '☀️';
+            this.dom.themeToggleBtn.title = isDark ? '切换到日间模式' : '切换到夜间模式';
+        }
     }
 
     toggleSidebar(forceState) {

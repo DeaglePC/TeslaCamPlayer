@@ -39,11 +39,13 @@
         </div>
         <div class="main-content">
             <header class="main-header">
-                <button id="toggleSidebarBtn" class="toggle-sidebar-btn">
+                <button id="toggleSidebarBtn" class="toggle-sidebar-btn" title="切换侧边栏">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 6h16M4 12h16M4 18h16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4 6h16M4 12h16M4 18h16" stroke="var(--icon-color, white)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </button>
+                <div class="header-title">TeslaCam Player</div>
+                <button id="themeToggleBtn" class="control-btn theme-toggle-btn" title="切换主题"></button>
             </header>
             <div id="playerArea" class="player-area">
                 <div id="front-container" class="video-container is-main" data-camera="front">
