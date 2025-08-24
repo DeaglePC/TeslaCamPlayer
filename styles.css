@@ -141,6 +141,13 @@ body {
     transform: scale(1.1) rotate(15deg);
 }
 
+.lang-toggle-btn {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-header);
+    margin-left: 8px;
+}
+
 .toggle-sidebar-btn {
     background: transparent;
     border: none;

@@ -1,16 +1,78 @@
+const i18n = {
+    en: {
+        pageTitle: "TeslaCam Player",
+        headerTitle: "TeslaCam Player",
+        toggleSidebar: "Toggle Sidebar",
+        toggleTheme: "Toggle Theme",
+        toggleLanguage: "切换到中文",
+        drivingRecords: "Driving Records",
+        date: "Date",
+        eventType: "Event Type",
+        allTypes: "All Types",
+        recentClips: "Recent Clips",
+        savedClips: "Saved Clips",
+        sentryClips: "Sentry Clips",
+        noRecordsFound: "No records found",
+        selectFolder: "Select Folder",
+        selectFolderPrompt: "Please select the root folder containing TeslaCam",
+        minutes: "minutes",
+        preview: "Preview",
+        noSignal: "No Signal",
+        front: "Front",
+        back: "Back",
+        left: "Left",
+        right: "Right",
+        play: "Play",
+        pause: "Pause",
+        toggleDay: "Switch to Day Mode",
+        toggleNight: "Switch to Night Mode",
+    },
+    zh: {
+        pageTitle: "TeslaCam 播放器",
+        headerTitle: "TeslaCam 播放器",
+        toggleSidebar: "切换侧边栏",
+        toggleTheme: "切换主题",
+        toggleLanguage: "Switch to English",
+        drivingRecords: "行车记录",
+        date: "日期",
+        eventType: "事件类型",
+        allTypes: "所有类型",
+        recentClips: "最近片段",
+        savedClips: "保存片段",
+        sentryClips: "哨兵模式",
+        noRecordsFound: "没有找到匹配的记录",
+        selectFolder: "选择文件夹",
+        selectFolderPrompt: "请选择包含 TeslaCam 文件夹的根目录",
+        minutes: "分钟",
+        preview: "预览图",
+        noSignal: "无信号",
+        front: "前",
+        back: "后",
+        left: "左",
+        right: "右",
+        play: "播放",
+        pause: "暂停",
+        toggleDay: "切换到日间模式",
+        toggleNight: "切换到夜间模式",
+    }
+};
+
 class VideoListComponent {
-    constructor(elementId, eventHandler) {
+    constructor(elementId, eventHandler, viewer) {
         this.container = document.getElementById(elementId);
         this.eventHandler = eventHandler;
+        this.viewer = viewer;
         if (!this.container) {
             throw new Error(`Element with id "${elementId}" not found.`);
         }
     }
 
     render(events) {
+        const lang = this.viewer.currentLanguage;
+        const translations = i18n[lang];
         this.container.innerHTML = '';
         if (!events || events.length === 0) {
-            this.container.innerHTML = '<div class="empty-state"><p>没有找到匹配的记录</p></div>';
+            this.container.innerHTML = `<div class="empty-state"><p>${translations.noRecordsFound}</p></div>`;
             return;
         }
         const fragment = document.createDocumentFragment();
@@ -43,7 +105,7 @@ class VideoListComponent {
         }
         const durationDiv = document.createElement('div');
         durationDiv.className = 'video-duration';
-        durationDiv.textContent = `${event.segments.length} 分钟`;
+        durationDiv.textContent = `${event.segments.length} ${i18n[this.viewer.currentLanguage].minutes}`;
         thumbnailDiv.appendChild(durationDiv);
         card.appendChild(thumbnailDiv);
 
@@ -59,7 +121,8 @@ class VideoListComponent {
     }
 
     getEventTypeLabel(type) {
-        return { 'RecentClips': '最近片段', 'SavedClips': '保存片段', 'SentryClips': '哨兵模式' }[type] || '未知';
+        const lang = this.viewer.currentLanguage;
+        return i18n[lang][type.charAt(0).toLowerCase() + type.slice(1)] || type;
     }
 
     parseTimestamp(timestamp) {
@@ -330,9 +393,10 @@ class ContinuousVideoPlayer {
 }
 
 class ModernVideoControls {
-    constructor(continuousPlayer) {
+    constructor(continuousPlayer, viewer) {
         this.continuousPlayer = continuousPlayer;
         this.multiCameraPlayer = continuousPlayer.multiCameraPlayer;
+        this.viewer = viewer;
         this.player = this.multiCameraPlayer.players.front;
         this.container = document.getElementById('playerArea');
         this.totalDuration = 0;
@@ -518,7 +582,8 @@ class ModernVideoControls {
             const currentTime = this.continuousPlayer.getCurrentTime();
             newTime.setSeconds(newTime.getSeconds() + currentTime);
 
-            this.realTimeClock.textContent = newTime.toLocaleString('zh-CN', {
+            const locale = this.viewer.currentLanguage === 'zh' ? 'zh-CN' : 'en-CA'; // en-CA for yyyy-mm-dd
+            this.realTimeClock.textContent = newTime.toLocaleString(locale, {
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',
@@ -537,7 +602,7 @@ class ModernVideoControls {
         this.isPlaying = playing;
         this.multiCameraPlayer.isPlaying = playing;
         this.playPauseIcon.src = playing ? 'assets/CodeBubbyAssets/2_38/2.svg' : 'assets/CodeBubbyAssets/2_38/10.svg';
-        this.playPauseIcon.alt = playing ? '暂停' : '播放';
+        this.playPauseIcon.alt = i18n[this.viewer.currentLanguage][playing ? 'pause' : 'play'];
     }
 
     updateTimeDisplay() {
@@ -583,6 +648,7 @@ class TeslaCamViewer {
         this.allFiles = [];
         this.eventGroups = [];
         this.currentEvent = null;
+        this.currentLanguage = 'zh';
         this.dom = {
             folderInput: document.getElementById('folderInput'),
             selectFolderBtn: document.getElementById('selectFolderBtn'),
@@ -593,14 +659,15 @@ class TeslaCamViewer {
             playerArea: document.getElementById('playerArea'),
             overlay: document.getElementById('overlay'),
             themeToggleBtn: document.getElementById('themeToggleBtn'),
-            themeIcon: document.getElementById('themeIcon'),
+            langToggleBtn: document.getElementById('langToggleBtn'),
         };
-        this.videoListComponent = new VideoListComponent('fileList', (eventId) => this.playEvent(eventId));
+        this.videoListComponent = new VideoListComponent('fileList', (eventId) => this.playEvent(eventId), this);
         this.multiCameraPlayer = new MultiCameraPlayer();
         this.continuousPlayer = new ContinuousVideoPlayer(this.multiCameraPlayer);
-        this.videoControls = new ModernVideoControls(this.continuousPlayer);
+        this.videoControls = new ModernVideoControls(this.continuousPlayer, this);
         this.initializeEventListeners();
         this.loadTheme();
+        this.loadLanguage();
     }
 
     initializeEventListeners() {
@@ -615,10 +682,10 @@ class TeslaCamViewer {
             if (container) this.switchCamera(container.dataset.camera);
         });
         this.dom.themeToggleBtn.addEventListener('click', () => this.toggleTheme());
+        this.dom.langToggleBtn.addEventListener('click', () => this.toggleLanguage());
         document.addEventListener('keydown', (e) => this.handleGlobalKeydown(e));
 
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            // Only apply if the user hasn't manually set a theme
             if (!localStorage.getItem('theme')) {
                 const isDark = e.matches;
                 document.body.classList.toggle('dark-theme', isDark);
@@ -731,8 +798,59 @@ class TeslaCamViewer {
     updateThemeIcon(isDark) {
         if (this.dom.themeToggleBtn) {
             this.dom.themeToggleBtn.textContent = isDark ? '🌙' : '☀️';
-            this.dom.themeToggleBtn.title = isDark ? '切换到日间模式' : '切换到夜间模式';
+            this.dom.themeToggleBtn.title = i18n[this.currentLanguage][isDark ? 'toggleDay' : 'toggleNight'];
         }
+    }
+
+    toggleLanguage() {
+        const newLang = this.currentLanguage === 'zh' ? 'en' : 'zh';
+        this.setLanguage(newLang);
+    }
+
+    setLanguage(lang) {
+        this.currentLanguage = lang;
+        localStorage.setItem('language', lang);
+        document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+        this.updateAllUIText(lang);
+    }
+
+    loadLanguage() {
+        const savedLang = localStorage.getItem('language');
+        let lang = navigator.language.startsWith('zh') ? 'zh' : 'en';
+        if (savedLang) {
+            lang = savedLang;
+        }
+        this.setLanguage(lang);
+    }
+
+    updateAllUIText(lang) {
+        const translations = i18n[lang];
+        if (!translations) return;
+
+        document.title = translations.pageTitle;
+        this.dom.langToggleBtn.textContent = lang === 'zh' ? 'En' : '中';
+        this.dom.langToggleBtn.title = translations.toggleLanguage;
+        this.dom.themeToggleBtn.title = translations.toggleTheme;
+        this.dom.toggleSidebarBtn.title = translations.toggleSidebar;
+
+        document.querySelector('.sidebar-header h2').textContent = translations.drivingRecords;
+        document.querySelector('.filter-group label[for="dateFilter"]').textContent = translations.date;
+        document.querySelector('.filter-group label[for="eventFilter"]').textContent = translations.eventType;
+        document.querySelector('#eventFilter option[value=""]').textContent = translations.allTypes;
+        document.querySelector('#eventFilter option[value="RecentClips"]').textContent = translations.recentClips;
+        document.querySelector('#eventFilter option[value="SavedClips"]').textContent = translations.savedClips;
+        document.querySelector('#eventFilter option[value="SentryClips"]').textContent = translations.sentryClips;
+        document.querySelector('#selectFolderBtn').textContent = translations.selectFolder;
+        document.querySelector('.header-title').textContent = translations.headerTitle;
+
+        const emptyState = document.querySelector('.empty-state p');
+        if (emptyState) {
+            emptyState.textContent = this.allFiles.length > 0 ? translations.noRecordsFound : translations.selectFolderPrompt;
+        }
+        
+        this.videoControls.updatePlayState(this.multiCameraPlayer.isPlaying);
+        this.videoControls.updateRealTimeClock();
+        this.filterAndRender();
     }
 
     toggleSidebar(forceState) {
