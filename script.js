@@ -668,17 +668,46 @@ class ModernVideoControls {
     updateRealTimeClock() {
         if (!this.realTimeClock) return;
 
-        if (!this.currentEventStartTime) {
+        const currentEvent = this.continuousPlayer.currentEvent;
+        if (!currentEvent) {
             this.realTimeClock.textContent = '--:--:--';
             return;
         }
 
         try {
-            const newTime = new Date(this.currentEventStartTime.getTime());
-            const currentTime = this.continuousPlayer.getCurrentTime();
-            newTime.setSeconds(newTime.getSeconds() + currentTime);
+            let newTime;
+            const activePlayer = this.multiCameraPlayer.players[this.multiCameraPlayer.activeCamera];
+            const segmentTime = activePlayer ? activePlayer.currentTime : 0;
 
-            const locale = this.viewer.currentLanguage === 'zh' ? 'zh-CN' : 'en-CA'; // en-CA for yyyy-mm-dd
+            if (currentEvent.eventType === 'RecentClips') {
+                const currentSegmentIndex = this.continuousPlayer.currentSegmentIndex;
+                const segment = currentEvent.segments[currentSegmentIndex];
+                const activeCameraFile = segment.files[this.multiCameraPlayer.activeCamera];
+
+                if (activeCameraFile && activeCameraFile.name) {
+                    const timestampMatch = activeCameraFile.name.match(/(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})/);
+                    if (timestampMatch) {
+                        const segmentStartTime = this.parseTimestamp(timestampMatch[0]);
+                        if (segmentStartTime) {
+                            newTime = new Date(segmentStartTime.getTime());
+                            newTime.setSeconds(newTime.getSeconds() + segmentTime);
+                        }
+                    }
+                }
+            } 
+            
+            // Fallback or default behavior for Sentry/Saved and if RecentClips logic fails
+            if (!newTime) {
+                if (!this.currentEventStartTime) {
+                    this.realTimeClock.textContent = '--:--:--';
+                    return;
+                }
+                newTime = new Date(this.currentEventStartTime.getTime());
+                const totalElapsedTime = this.continuousPlayer.getCurrentTime();
+                newTime.setSeconds(newTime.getSeconds() + totalElapsedTime);
+            }
+
+            const locale = this.viewer.currentLanguage === 'zh' ? 'zh-CN' : 'en-CA';
             this.realTimeClock.textContent = newTime.toLocaleString(locale, {
                 year: 'numeric',
                 month: '2-digit',
@@ -688,6 +717,7 @@ class ModernVideoControls {
                 second: '2-digit',
                 hour12: false
             }).replace(/\//g, '-').replace(',', '');
+
         } catch (e) {
             this.realTimeClock.textContent = '错误';
             console.error("Error updating real-time clock:", e);
