@@ -95,7 +95,7 @@ class MultiCameraPlayer {
 
         const layouts = {
             front: { back: 'top-right', left: 'bottom-left', right: 'bottom-right' },
-            back: { front: 'top-right', left: 'bottom-left', right: 'bottom-right' },
+            back: { front: 'top-left', left: 'bottom-left', right: 'bottom-right' },
             left: { front: 'top-left', back: 'top-right', right: 'bottom-right' },
             right: { front: 'top-left', back: 'top-right', left: 'bottom-left' }
         };
