@@ -256,6 +256,7 @@ body {
     background-color: var(--bg-input);
     color: var(--text-primary);
     transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s;
+    cursor: pointer;
 }
 
 #dateFilter:focus, #eventFilter:focus {
@@ -900,3 +901,121 @@ body.dark-theme #eventFilter {
 .video-time .city-link:hover {
     text-decoration: underline;
 }
+
+/* Custom Flatpickr Styles */
+.flatpickr-calendar {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    box-shadow: 0 5px 15px var(--shadow-primary);
+    color: var(--text-primary);
+}
+
+.flatpickr-months .flatpickr-month,
+.flatpickr-weekdays,
+.flatpickr-weekday,
+span.flatpickr-weekday {
+    background-color: transparent;
+    color: var(--text-primary);
+}
+
+.flatpickr-day {
+    color: var(--text-primary);
+    border-color: transparent;
+}
+
+.flatpickr-day:hover,
+.flatpickr-day:focus {
+    background-color: var(--bg-tertiary);
+    border-color: var(--bg-tertiary);
+}
+
+.flatpickr-day.today {
+    border-color: var(--border-focus);
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+    background: var(--bg-button);
+    color: var(--text-on-button);
+    border-color: var(--bg-button);
+}
+
+.flatpickr-day.disabled,
+.flatpickr-day.disabled:hover {
+    color: var(--text-secondary);
+    opacity: 0.5;
+    background: transparent;
+}
+
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+    fill: var(--text-primary);
+}
+
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
+    fill: var(--border-focus);
+}
+
+/* Fix for prev/next month day visibility in dark mode */
+body.dark-theme .flatpickr-day.prevMonthDay,
+body.dark-theme .flatpickr-day.nextMonthDay {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+body.dark-theme .flatpickr-day.prevMonthDay:hover,
+body.dark-theme .flatpickr-day.nextMonthDay:hover,
+body.dark-theme .flatpickr-day.prevMonthDay:focus,
+body.dark-theme .flatpickr-day.nextMonthDay:focus {
+    color: var(--text-primary); /* Use primary text color on hover */
+    background-color: var(--bg-tertiary); /* Keep consistent hover background */
+}
+
+/* Custom styles for flatpickr month dropdown */
+.flatpickr-monthDropdown-months {
+    border-radius: 6px;
+    border: 1px solid var(--border-primary);
+    background: var(--bg-secondary);
+    max-height: 220px; /* Limit height and make it scrollable */
+    overflow-y: auto;
+}
+
+.flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
+    padding: 8px;
+    color: var(--text-primary);
+    background: transparent;
+}
+
+.flatpickr-monthDropdown-months .flatpickr-monthDropdown-month:hover {
+    background: var(--bg-tertiary);
+}
+
+.flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected {
+    background: var(--bg-button);
+    color: var(--text-on-button);
+}
+
+/* Dark theme overrides for flatpickr month dropdown */
+body.dark-theme .flatpickr-calendar .flatpickr-monthDropdown-months {
+    border-color: var(--border-primary) !important;
+    background: var(--bg-secondary) !important;
+}
+
+body.dark-theme .flatpickr-calendar .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme .flatpickr-calendar .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month:hover {
+    background: var(--bg-tertiary) !important;
+}
+
+body.dark-theme .flatpickr-calendar .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected {
+    background: var(--bg-button) !important;
+    color: var(--text-on-button) !important;
+}
+
+
+

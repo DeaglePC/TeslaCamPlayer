@@ -23,6 +23,7 @@
         revealFile: "Reveal File Path",
         downloadFile: "Download Current File",
         filePathAlertTitle: "Current Video File Path",
+        selectDate: "Select Date",
         minutes: "minutes",
         preview: "Preview",
         noSignal: "No Signal",
@@ -59,6 +60,7 @@
         revealFile: "显示文件路径",
         downloadFile: "下载当前文件",
         filePathAlertTitle: "当前视频文件路径",
+        selectDate: "选择日期",
         minutes: "分钟",
         preview: "预览图",
         noSignal: "无信号",
@@ -782,6 +784,7 @@ class TeslaCamViewer {
         this.currentEvent = null;
         this.currentLanguage = 'zh';
         this.currentMapCoordinates = null;
+        this.flatpickrInstance = null;
         this.dom = {
             folderInput: document.getElementById('folderInput'),
             selectFolderBtn: document.getElementById('selectFolderBtn'),
@@ -806,6 +809,7 @@ class TeslaCamViewer {
         this.continuousPlayer = new ContinuousVideoPlayer(this.multiCameraPlayer);
         this.videoControls = new ModernVideoControls(this.continuousPlayer, this);
         this.initializeEventListeners();
+        this.initializeFlatpickr();
         this.loadTheme();
         this.loadLanguage();
     }
@@ -813,7 +817,6 @@ class TeslaCamViewer {
     initializeEventListeners() {
         this.dom.selectFolderBtn.addEventListener('click', () => this.dom.folderInput.click());
         this.dom.folderInput.addEventListener('change', (e) => this.handleFolderSelection(e.target.files));
-        this.dom.dateFilter.addEventListener('change', () => this.filterAndRender());
         this.dom.eventFilter.addEventListener('change', () => this.filterAndRender());
         this.dom.toggleSidebarBtn.addEventListener('click', () => this.toggleSidebar());
         this.dom.overlay.addEventListener('click', () => this.toggleSidebar(false));
@@ -844,6 +847,23 @@ class TeslaCamViewer {
         this.dom.googleMapBtn.addEventListener('click', () => this.openMap('google'));
         this.dom.revealFileBtn.addEventListener('click', () => this.revealCurrentFilePath());
         this.dom.downloadFileBtn.addEventListener('click', () => this.downloadCurrentFile());
+    }
+
+    initializeFlatpickr() {
+        const lang = this.currentLanguage;
+        const translations = i18n[lang];
+        this.flatpickrInstance = flatpickr(this.dom.dateFilter, {
+            dateFormat: "Y-m-d",
+            locale: this.currentLanguage === 'zh' ? 'zh' : 'default',
+            placeholder: translations.selectDate,
+            onChange: (selectedDates, dateStr, instance) => {
+                this.filterAndRender();
+            },
+            onReady: (selectedDates, dateStr, instance) => {
+                const cal = instance.calendarContainer;
+                cal.classList.add('teslacam-flatpickr');
+            }
+        });
     }
 
     handleGlobalKeydown(e) {
@@ -999,6 +1019,12 @@ class TeslaCamViewer {
         this.currentLanguage = lang;
         localStorage.setItem('language', lang);
         document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+        if (this.flatpickrInstance) {
+            const isChinese = lang === 'zh';
+            this.flatpickrInstance.set('locale', isChinese ? 'zh' : 'default');
+            this.flatpickrInstance.redraw();
+            this.dom.dateFilter.placeholder = i18n[lang].selectDate;
+        }
         this.updateAllUIText(lang);
     }
 

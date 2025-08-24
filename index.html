@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeslaCam 播放器</title>
     <link rel="icon" href="logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -15,7 +16,7 @@
         <div class="filters">
             <div class="filter-group">
                 <label for="dateFilter">日期</label>
-                <input type="date" id="dateFilter">
+                <input type="text" id="dateFilter" placeholder="选择日期">
             </div>
             <div class="filter-group">
                 <label for="eventFilter">事件类型</label>
@@ -119,6 +120,8 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
