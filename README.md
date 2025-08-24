@@ -34,7 +34,24 @@ npx http-server -p 8080 .
 
 Then, open your browser and go to `http://localhost:8080`.
 
-**2. Select Your TeslaCam Folder**
+**2. Deploy with Docker (Recommended)**
+
+If you have Docker installed, you can easily run the application in a container.
+
+1.  **Build the Docker image:**
+    ```bash
+    docker build -t teslacam-player .
+    ```
+
+2.  **Run the Docker container:**
+    ```bash
+    docker run -d -p 8080:80 teslacam-player
+    ```
+
+3.  **Access the application:**
+    Open your browser and go to `http://localhost:8080`.
+
+**3. Select Your TeslaCam Folder**
 
 1.  Click the "📁 Select Folder" button.
 2.  In the file selection dialog, navigate to and select the root `TeslaCam` folder from your USB drive.
@@ -103,7 +120,24 @@ npx http-server -p 8080 .
 
 然后，打开浏览器并访问 `http://localhost:8080`。
 
-**2. 选择您的 TeslaCam 文件夹**
+**2. 通过 Docker 部署 (推荐)**
+
+如果您安装了 Docker，可以非常方便地在容器中运行此应用。
+
+1.  **构建 Docker 镜像:**
+    ```bash
+    docker build -t teslacam-player .
+    ```
+
+2.  **运行 Docker 容器:**
+    ```bash
+    docker run -d -p 8080:80 teslacam-player
+    ```
+
+3.  **访问应用:**
+    打开浏览器并访问 `http://localhost:8080`。
+
+**3. 选择您的 TeslaCam 文件夹**
 
 1.  点击 “📁 选择文件夹” 按钮。
 2.  在文件选择对话框中，找到并选择您 U 盘中的根 `TeslaCam` 文件夹。
