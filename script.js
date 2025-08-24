@@ -120,9 +120,13 @@ class VideoListComponent {
         const infoDiv = document.createElement('div');
         infoDiv.className = 'video-info';
         const startTime = this.parseTimestamp(firstSegment.timestamp);
+        const timeString = startTime.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        const cityPrefix = event.city ? `${event.city} ` : '';
+        const eventTypeLabel = this.getEventTypeLabel(event.eventType);
+
         infoDiv.innerHTML = `
-            <div class="video-time">${startTime.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
-            <div class="video-type">${this.getEventTypeLabel(event.eventType)}</div>
+            <div class="video-time">${cityPrefix}${timeString}</div>
+            <div class="video-type" title="${eventTypeLabel}">${eventTypeLabel.split(' ')[0]}</div>
         `;
         card.appendChild(infoDiv);
         return card;
@@ -735,6 +739,20 @@ class TeslaCamViewer {
             const cameraType = this.getCameraType(file.name);
             if (cameraType) segment.files[cameraType] = file;
         }
+
+        const jsonFiles = files.filter(f => f.name === 'event.json');
+        for (const jsonFile of jsonFiles) {
+            const eventId = jsonFile.webkitRelativePath.substring(0, jsonFile.webkitRelativePath.lastIndexOf('/'));
+            if (eventMap.has(eventId)) {
+                try {
+                    const eventData = JSON.parse(await jsonFile.text());
+                    eventMap.get(eventId).city = eventData.city;
+                } catch (e) {
+                    console.error(`Error parsing event.json for ${eventId}:`, e);
+                }
+            }
+        }
+
         const thumbFiles = files.filter(f => f.name === 'thumb.png');
         for(const thumb of thumbFiles) {
             const thumbDir = thumb.webkitRelativePath.substring(0, thumb.webkitRelativePath.lastIndexOf('/'));
