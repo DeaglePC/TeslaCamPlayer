@@ -20,6 +20,9 @@
         mapModalTitle: "View on Map",
         gaodeMap: "Gaode Map",
         googleMap: "Google Map",
+        revealFile: "Reveal File Path",
+        downloadFile: "Download Current File",
+        filePathAlertTitle: "Current Video File Path",
         minutes: "minutes",
         preview: "Preview",
         noSignal: "No Signal",
@@ -53,6 +56,9 @@
         mapModalTitle: "在地图上查看",
         gaodeMap: "高德地图",
         googleMap: "谷歌地图",
+        revealFile: "显示文件路径",
+        downloadFile: "下载当前文件",
+        filePathAlertTitle: "当前视频文件路径",
         minutes: "分钟",
         preview: "预览图",
         noSignal: "无信号",
@@ -691,6 +697,15 @@ class ModernVideoControls {
         this.multiCameraPlayer.isPlaying = playing;
         this.playPauseIcon.src = playing ? 'assets/CodeBubbyAssets/2_38/2.svg' : 'assets/CodeBubbyAssets/2_38/10.svg';
         this.playPauseIcon.alt = i18n[this.viewer.currentLanguage][playing ? 'pause' : 'play'];
+
+        const revealBtn = this.viewer.dom.revealFileBtn;
+        if (revealBtn) {
+            revealBtn.disabled = playing || !this.viewer.currentEvent;
+        }
+        const downloadBtn = this.viewer.dom.downloadFileBtn;
+        if (downloadBtn) {
+            downloadBtn.disabled = playing || !this.viewer.currentEvent;
+        }
     }
 
     updateTimeDisplay() {
@@ -783,6 +798,8 @@ class TeslaCamViewer {
             gaodeMapBtn: document.getElementById('gaodeMapBtn'),
             googleMapBtn: document.getElementById('googleMapBtn'),
             closeModalBtn: document.getElementById('closeModalBtn'),
+            revealFileBtn: document.getElementById('revealFileBtn'),
+            downloadFileBtn: document.getElementById('downloadFileBtn'),
         };
         this.videoListComponent = new VideoListComponent('fileList', (eventId) => this.playEvent(eventId), this);
         this.multiCameraPlayer = new MultiCameraPlayer();
@@ -825,6 +842,8 @@ class TeslaCamViewer {
         });
         this.dom.gaodeMapBtn.addEventListener('click', () => this.openMap('gaode'));
         this.dom.googleMapBtn.addEventListener('click', () => this.openMap('google'));
+        this.dom.revealFileBtn.addEventListener('click', () => this.revealCurrentFilePath());
+        this.dom.downloadFileBtn.addEventListener('click', () => this.downloadCurrentFile());
     }
 
     handleGlobalKeydown(e) {
@@ -1002,6 +1021,8 @@ class TeslaCamViewer {
         this.dom.mapModalTitle.textContent = translations.mapModalTitle;
         this.dom.gaodeMapBtn.textContent = translations.gaodeMap;
         this.dom.googleMapBtn.textContent = translations.googleMap;
+        this.dom.revealFileBtn.title = translations.revealFile;
+        this.dom.downloadFileBtn.title = translations.downloadFile;
 
         document.querySelector('.sidebar-header h2').textContent = translations.drivingRecords;
         document.querySelector('.filter-group label[for="dateFilter"]').textContent = translations.date;
@@ -1034,6 +1055,56 @@ class TeslaCamViewer {
         
         this.dom.toggleSidebarBtn.classList.toggle('collapsed', isNowCollapsed);
         this.dom.overlay.classList.toggle('active', !isNowCollapsed && window.innerWidth < 768);
+    }
+
+    revealCurrentFilePath() {
+        if (this.multiCameraPlayer.isPlaying || !this.continuousPlayer.currentEvent) {
+            return;
+        }
+    
+        const currentSegmentIndex = this.continuousPlayer.currentSegmentIndex;
+        const segment = this.continuousPlayer.currentEvent.segments[currentSegmentIndex];
+        if (!segment) {
+            alert("Could not determine file path.");
+            return;
+        }
+    
+        const activeCamera = this.multiCameraPlayer.activeCamera;
+        const file = segment.files[activeCamera];
+    
+        if (file && file.webkitRelativePath) {
+            const lang = this.currentLanguage;
+            const translations = i18n[lang];
+            alert(`${translations.filePathAlertTitle}:\n\n${file.webkitRelativePath}`);
+        } else {
+            alert("Could not determine file path for the active camera.");
+        }
+    }
+
+    downloadCurrentFile() {
+        if (this.multiCameraPlayer.isPlaying || !this.continuousPlayer.currentEvent) {
+            return;
+        }
+    
+        const currentSegmentIndex = this.continuousPlayer.currentSegmentIndex;
+        const segment = this.continuousPlayer.currentEvent.segments[currentSegmentIndex];
+        if (!segment) {
+            return;
+        }
+    
+        const activeCamera = this.multiCameraPlayer.activeCamera;
+        const file = segment.files[activeCamera];
+    
+        if (file) {
+            const a = document.createElement('a');
+            const url = URL.createObjectURL(file);
+            a.href = url;
+            a.download = file.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
     }
 
     showMapModal(lat, lon) {

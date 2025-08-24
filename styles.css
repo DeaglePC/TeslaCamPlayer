@@ -154,6 +154,26 @@ body {
     margin-left: 8px;
 }
 
+#revealFileBtn {
+    font-size: 1.5rem;
+    margin-right: 4px;
+}
+
+#revealFileBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+#downloadFileBtn {
+    font-size: 1.5rem;
+    margin-right: 4px;
+}
+
+#downloadFileBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
 .toggle-sidebar-btn {
     background: transparent;
     border: none;

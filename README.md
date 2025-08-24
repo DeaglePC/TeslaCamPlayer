@@ -16,6 +16,7 @@ A modern, browser-based viewer for your TeslaCam footage. Play all four camera a
 *   🕰️ **Real-Time Clock**: See the actual date and time of the recording as you play.
 *   ⌨️ **Keyboard Shortcuts**: Control playback with your keyboard (`Space` for play/pause).
 *   🗺️ **Map Integration**: Click on the event's city to view the location on Gaode Map or Google Maps.
+*   💾 **Clip Download**: Download the currently playing video clip directly from the player.
 *   🔒 **100% Private**: All processing is done locally in your browser. Your files are never uploaded.
 *   😊 **Emoji-Enhanced UI**: A touch of fun in the user interface.
 
@@ -44,6 +45,7 @@ Then, open your browser and go to `http://localhost:8080`.
 *   Use the filters to find specific events.
 *   Click on any event to start playing.
 *   Click on a city name (if available) to open the location on Gaode Map or Google Maps.
+*   When paused, click the 💾 icon in the header to download the current video file.
 
 ## ⌨️ Keyboard Shortcuts
 
@@ -83,6 +85,7 @@ MIT License
 *   🕰️ **实时时钟**: 播放时可看到录像对应的真实日期和时间。
 *   ⌨️ **键盘快捷键**: 使用键盘控制播放（`空格键` 播放/暂停）。
 *   🗺️ **地图集成**: 点击事件的城市名称，即可通过高德地图或谷歌地图查看具体位置。
+*   💾 **片段下载**: 直接从播放器下载当前正在播放的视频片段。
 *   🔒 **100% 私密**: 所有文件处理都在您的浏览器本地完成，绝不上传您的任何文件。
 *   😊 **Emoji 增强界面**: 为用户界面增添一丝趣味。
 
@@ -111,6 +114,7 @@ npx http-server -p 8080 .
 *   使用筛选器查找特定事件。
 *   点击任何事件即可开始播放。
 *   点击事件列表中的城市名称（如果存在），可以在高德地图或谷歌地图上打开该位置。
+*   暂停时，点击标题栏的 💾 图标即可下载当前视频文件。
 
 ## ⌨️ 键盘快捷键
 
