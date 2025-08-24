@@ -603,7 +603,7 @@ class ModernVideoControls {
                 minute: '2-digit',
                 second: '2-digit',
                 hour12: false
-            }).replace(/\//g, '-');
+            }).replace(/\//g, '-').replace(',', '');
         } catch (e) {
             this.realTimeClock.textContent = '错误';
             console.error("Error updating real-time clock:", e);
