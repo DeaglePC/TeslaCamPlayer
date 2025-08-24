@@ -924,6 +924,8 @@ class TeslaCamViewer {
         if (!event) return;
         this.currentEvent = event;
 
+        this.dom.playerArea.classList.remove('empty');
+
         this.videoControls.setEventStartTime(event.startTime);
         
         if (!event.totalDuration || event.totalDuration <= 0) {

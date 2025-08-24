@@ -456,6 +456,18 @@ body.dark-theme #eventFilter {
     overflow: hidden;
 }
 
+.player-area.empty {
+    background-image: url('https://digitalassets.tesla.com/tesla-contents/image/upload/f_auto,q_auto/Cybertruck-Second-Hero-Desktop.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.player-area.empty .video-container,
+.player-area.empty .video-controls-overlay {
+    display: none;
+}
+
 .video-container {
     position: absolute;
     background-color: #111; /* Keep dark */
