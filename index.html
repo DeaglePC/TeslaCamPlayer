@@ -11,15 +11,21 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <h2>行车记录</h2>
-                <div class="filters">
-                    <input type="date" id="dateFilter">
-                    <select id="eventFilter">
-                        <option value="">所有类型</option>
-                        <option value="SentryClips">哨兵模式</option>
-                        <option value="SavedClips">已保存</option>
-                        <option value="RecentClips">最近片段</option>
-                    </select>
-                </div>
+        <div class="filters">
+            <div class="filter-group">
+                <label for="dateFilter">日期</label>
+                <input type="date" id="dateFilter">
+            </div>
+            <div class="filter-group">
+                <label for="eventFilter">事件类型</label>
+                <select id="eventFilter">
+                    <option value="">所有类型</option>
+                    <option value="RecentClips">最近片段</option>
+                    <option value="SavedClips">保存片段</option>
+                    <option value="SentryClips">哨兵模式</option>
+                </select>
+            </div>
+        </div>
             </div>
             <div id="fileList" class="file-list">
                 <div class="empty-state">

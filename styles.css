@@ -92,14 +92,48 @@ body {
 
 .filters {
     display: flex;
-    gap: 0.5rem;
+    gap: 1rem;
+    padding: 0 1rem 1rem;
+    border-bottom: 1px solid #ddd;
+    background-color: #fff;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.filter-group label {
+    font-size: 0.75rem; /* 12px */
+    color: #6c757d;
+    margin-bottom: 0.25rem;
 }
 
 #dateFilter, #eventFilter {
     flex: 1;
-    padding: 0.5rem;
+    padding: 0.625rem; /* 10px */
     border: 1px solid #ccc;
     border-radius: 6px;
+    font-size: 0.875rem; /* 14px */
+    background-color: #f8f9fa;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#dateFilter:focus, #eventFilter:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+#eventFilter {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.625rem center;
+    padding-right: 2rem;
 }
 
 .file-list {

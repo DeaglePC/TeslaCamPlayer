@@ -611,6 +611,17 @@ class TeslaCamViewer {
             const container = e.target.closest('.video-container.is-pip');
             if (container) this.switchCamera(container.dataset.camera);
         });
+        document.addEventListener('keydown', (e) => this.handleGlobalKeydown(e));
+    }
+
+    handleGlobalKeydown(e) {
+        const activeElement = document.activeElement;
+        const isTyping = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.isContentEditable);
+
+        if (e.key === ' ' && !isTyping) {
+            e.preventDefault();
+            this.videoControls.togglePlayPause();
+        }
     }
 
     async handleFolderSelection(files) {
