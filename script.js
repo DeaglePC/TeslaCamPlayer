@@ -8,13 +8,15 @@ const i18n = {
         drivingRecords: "Driving Records",
         date: "Date",
         eventType: "Event Type",
-        allTypes: "All Types",
-        recentClips: "Recent Clips",
-        savedClips: "Saved Clips",
-        sentryClips: "Sentry Clips",
+        allTypes: "📂 All Types",
+        recentClips: "🕒 Recent Clips",
+        savedClips: "💾 Saved Clips",
+        sentryClips: "🤖 Sentry Clips",
         noRecordsFound: "No records found",
-        selectFolder: "Select Folder",
-        selectFolderPrompt: "Please select the root folder containing TeslaCam",
+        selectFolder: "📁 Select Folder",
+        helpStep1: "Insert your Tesla USB drive into your PC",
+        helpStep2: "Select the 'TeslaCam' directory from the drive",
+        helpNote: "Note: This tool does not upload your data. All operations are performed locally.",
         minutes: "minutes",
         preview: "Preview",
         noSignal: "No Signal",
@@ -36,13 +38,15 @@ const i18n = {
         drivingRecords: "行车记录",
         date: "日期",
         eventType: "事件类型",
-        allTypes: "所有类型",
-        recentClips: "最近片段",
-        savedClips: "保存片段",
-        sentryClips: "哨兵模式",
+        allTypes: "📂 所有类型",
+        recentClips: "🕒 最近片段",
+        savedClips: "💾 保存片段",
+        sentryClips: "🤖 哨兵模式",
         noRecordsFound: "没有找到匹配的记录",
-        selectFolder: "选择文件夹",
-        selectFolderPrompt: "请选择包含 TeslaCam 文件夹的根目录",
+        selectFolder: "📁 选择文件夹",
+        helpStep1: "插入特斯拉U盘到你的PC",
+        helpStep2: "选择U盘中的TeslaCam目录",
+        helpNote: "注意：本工具不会上传你的数据，一切操作都是本地行为。",
         minutes: "分钟",
         preview: "预览图",
         noSignal: "无信号",
@@ -72,7 +76,11 @@ class VideoListComponent {
         const translations = i18n[lang];
         this.container.innerHTML = '';
         if (!events || events.length === 0) {
-            this.container.innerHTML = `<div class="empty-state"><p>${translations.noRecordsFound}</p></div>`;
+            if (this.viewer.allFiles.length > 0) {
+                this.container.innerHTML = `<div class="empty-state"><p>${translations.noRecordsFound}</p></div>`;
+            } else {
+                this.viewer.showInitialHelpMessage();
+            }
             return;
         }
         const fragment = document.createDocumentFragment();
@@ -802,6 +810,21 @@ class TeslaCamViewer {
         }
     }
 
+    showInitialHelpMessage() {
+        const lang = this.currentLanguage;
+        const translations = i18n[lang];
+        const helpHtml = `
+            <div class="empty-state help-text">
+                <ol>
+                    <li>${translations.helpStep1}</li>
+                    <li>${translations.helpStep2}</li>
+                </ol>
+                <p class="note">${translations.helpNote}</p>
+            </div>
+        `;
+        this.videoListComponent.container.innerHTML = helpHtml;
+    }
+
     toggleLanguage() {
         const newLang = this.currentLanguage === 'zh' ? 'en' : 'zh';
         this.setLanguage(newLang);
@@ -843,14 +866,14 @@ class TeslaCamViewer {
         document.querySelector('#selectFolderBtn').textContent = translations.selectFolder;
         document.querySelector('.header-title span').textContent = translations.headerTitle;
 
-        const emptyState = document.querySelector('.empty-state p');
-        if (emptyState) {
-            emptyState.textContent = this.allFiles.length > 0 ? translations.noRecordsFound : translations.selectFolderPrompt;
+        if (this.allFiles.length === 0) {
+            this.showInitialHelpMessage();
+        } else {
+            this.filterAndRender();
         }
         
         this.videoControls.updatePlayState(this.multiCameraPlayer.isPlaying);
         this.videoControls.updateRealTimeClock();
-        this.filterAndRender();
     }
 
     toggleSidebar(forceState) {

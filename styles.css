@@ -272,9 +272,42 @@ body.dark-theme #eventFilter {
 }
 
 .empty-state {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
     color: var(--text-secondary);
     padding: 2rem;
+    text-align: center;
+}
+
+.help-text {
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    padding: 30px;
+}
+
+.help-text ol {
+    padding-left: 20px;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.help-text li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.help-text .note {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    margin-top: 15px;
+    border-top: 1px solid var(--border-primary);
+    padding-top: 15px;
+    width: 100%;
 }
 
 .video-card {
