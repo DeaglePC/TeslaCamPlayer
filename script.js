@@ -45,7 +45,7 @@
         drivingRecords: "行车记录",
         date: "日期",
         eventType: "事件类型",
-        allTypes: "📂 所有类型",
+        allTypes: "🎥 所有类型",
         recentClips: "🕒 最近片段",
         savedClips: "💾 保存片段",
         sentryClips: "🤖 哨兵模式",
@@ -514,7 +514,7 @@ class ModernVideoControls {
         this.progressHandle = this.container.querySelector('#progressHandle');
         this.videoTimeDisplay = this.container.querySelector('#videoTimeDisplay');
         this.timePreview = this.container.querySelector('#timePreview');
-        this.realTimeClock = this.container.querySelector('#realTimeClock');
+        this.realTimeClock = document.getElementById('realTimeClock');
         this.speedControl = this.container.querySelector('#speedControl');
         this.speedBtn = this.container.querySelector('#speedBtn');
         this.speedOptions = this.container.querySelector('.speed-options');
@@ -833,6 +833,7 @@ class TeslaCamViewer {
             closeModalBtn: document.getElementById('closeModalBtn'),
             revealFileBtn: document.getElementById('revealFileBtn'),
             downloadFileBtn: document.getElementById('downloadFileBtn'),
+            headerLocationDisplay: document.getElementById('headerLocationDisplay'),
         };
         this.videoListComponent = new VideoListComponent('fileList', (eventId) => this.playEvent(eventId), this);
         this.multiCameraPlayer = new MultiCameraPlayer();
@@ -857,6 +858,8 @@ class TeslaCamViewer {
         this.dom.themeToggleBtn.addEventListener('click', () => this.toggleTheme());
         this.dom.langToggleBtn.addEventListener('click', () => this.toggleLanguage());
         document.addEventListener('keydown', (e) => this.handleGlobalKeydown(e));
+
+        window.addEventListener('resize', () => this.handleResize());
 
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
             if (!localStorage.getItem('theme')) {
@@ -904,6 +907,13 @@ class TeslaCamViewer {
             e.preventDefault();
             this.videoControls.togglePlayPause();
         }
+    }
+
+    handleResize() {
+        this.dom.sidebar.style.transition = 'none';
+        setTimeout(() => {
+            this.dom.sidebar.style.transition = '';
+        }, 50);
     }
 
     async handleFolderSelection(files) {
@@ -973,6 +983,18 @@ class TeslaCamViewer {
         const event = this.eventGroups.find(e => e.eventId === eventId);
         if (!event) return;
         this.currentEvent = event;
+
+        if (this.dom.headerLocationDisplay) {
+            if (event.city && event.lat && event.lon) {
+                this.dom.headerLocationDisplay.innerHTML = `📍 <span class="city-text">${event.city}</span>`;
+                this.dom.headerLocationDisplay.onclick = () => this.showMapModal(event.lat, event.lon);
+                this.dom.headerLocationDisplay.style.display = 'block';
+            } else {
+                this.dom.headerLocationDisplay.innerHTML = '';
+                this.dom.headerLocationDisplay.onclick = null;
+                this.dom.headerLocationDisplay.style.display = 'none';
+            }
+        }
 
         this.dom.playerArea.classList.remove('empty');
 
@@ -1082,7 +1104,7 @@ class TeslaCamViewer {
         this.dom.revealFileBtn.title = translations.revealFile;
         this.dom.downloadFileBtn.title = translations.downloadFile;
 
-        document.querySelector('.sidebar-header h2').textContent = translations.drivingRecords;
+        document.querySelector('.sidebar-header .header-title span').textContent = translations.headerTitle;
         document.querySelector('.filter-group label[for="dateFilter"]').textContent = translations.date;
         document.querySelector('.filter-group label[for="eventFilter"]').textContent = translations.eventType;
         document.querySelector('#eventFilter option[value=""]').textContent = translations.allTypes;
@@ -1090,7 +1112,6 @@ class TeslaCamViewer {
         document.querySelector('#eventFilter option[value="SavedClips"]').textContent = translations.savedClips;
         document.querySelector('#eventFilter option[value="SentryClips"]').textContent = translations.sentryClips;
         document.querySelector('#selectFolderBtn').textContent = translations.selectFolder;
-        document.querySelector('.header-title span').textContent = translations.headerTitle;
 
         if (this.allFiles.length === 0) {
             this.showInitialHelpMessage();

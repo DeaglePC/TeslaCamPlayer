@@ -12,7 +12,10 @@
     <div class="container">
         <div class="sidebar">
             <div class="sidebar-header">
-                <h2>行车记录</h2>
+                <div class="header-title">
+                    <img src="logo.png" alt="Logo" class="header-logo">
+                    <span>TeslaCam Player</span>
+                </div>
         <div class="filters">
             <div class="filter-group">
                 <label for="dateFilter">日期</label>
@@ -43,9 +46,9 @@
                         <path d="M4 6h16M4 12h16M4 18h16" stroke="var(--icon-color, white)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </button>
-                <div class="header-title">
-                    <img src="logo.png" alt="Logo" class="header-logo">
-                    <span>TeslaCam Player</span>
+                <div class="header-center-info">
+                    <div id="headerLocationDisplay" class="header-location"></div>
+                    <div id="realTimeClock" class="real-time-clock">--:--:--</div>
                 </div>
                 <button id="revealFileBtn" class="control-btn" title="显示文件路径" disabled>📂</button>
                 <button id="downloadFileBtn" class="control-btn" title="下载当前文件" disabled>💾</button>
@@ -98,7 +101,7 @@
                                         <div data-speed="0.5">0.5x</div>
                                     </div>
                                 </div>
-                                <div id="realTimeClock" class="real-time-clock">--:--:--</div>
+                                </div>
                             </div>
                         </div>
                     </div>

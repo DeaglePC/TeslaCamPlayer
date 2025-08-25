@@ -113,17 +113,15 @@ body {
     border-bottom: 1px solid var(--border-header);
     z-index: 50;
     color: var(--text-header);
+    position: relative;
 }
 
 .header-title {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
     display: flex;
     align-items: center;
     font-size: 1.2em;
     font-weight: 600;
-    color: var(--text-color);
+    color: var(--text-primary);
     margin: 0;
 }
 
@@ -135,7 +133,7 @@ body {
 
 .main-header .theme-toggle-btn {
     margin-left: auto; /* Pushes it to the right */
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     padding: 0;
     line-height: 1;
     width: 40px;
@@ -155,8 +153,11 @@ body {
 }
 
 #revealFileBtn {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     margin-right: 4px;
+    position: relative;
+    top: -4px;
+    left: 2px;
 }
 
 #revealFileBtn:disabled {
@@ -165,8 +166,11 @@ body {
 }
 
 #downloadFileBtn {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     margin-right: 4px;
+    position: relative;
+    top: -3px;
+    left: 2px;
 }
 
 #downloadFileBtn:disabled {
@@ -221,15 +225,17 @@ body {
     transition: background-color 0.3s, border-color 0.3s;
 }
 
-.sidebar-header h2 {
+.sidebar-header .header-title {
     margin-bottom: 1rem;
     font-size: 1.25rem;
+    padding: 0 0 1rem;
 }
 
 .filters {
     display: flex;
+    flex-direction: column;
     gap: 1rem;
-    padding: 0 1rem 1rem;
+    padding: 0 0rem 1rem;
     border-bottom: 1px solid var(--border-primary);
     background-color: var(--bg-secondary);
     transition: background-color 0.3s, border-color 0.3s;
@@ -238,13 +244,13 @@ body {
 .filter-group {
     display: flex;
     flex-direction: column;
-    flex: 1;
 }
 
 .filter-group label {
     font-size: 0.75rem; /* 12px */
     color: var(--text-secondary);
     margin-bottom: 0.25rem;
+    padding: 0 0 0.2rem;
 }
 
 #dateFilter, #eventFilter {
@@ -714,11 +720,35 @@ body.dark-theme #eventFilter {
     filter: var(--icon-filter-on-dark);
 }
 
+.header-center-info {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-location {
+    color: var(--text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.header-location .city-text {
+    text-decoration: underline;
+}
+
+.header-location:hover {
+    text-decoration: underline;
+}
+
 .real-time-clock {
-    font-size: 0.9em;
-    min-width: 70px;
-    text-align: right;
-    color: var(--text-on-dark);
+    color: var(--text-header);
+    font-size: 1rem;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 .speed-control {
@@ -1015,6 +1045,30 @@ body.dark-theme .flatpickr-calendar .flatpickr-monthDropdown-months .flatpickr-m
 body.dark-theme .flatpickr-calendar .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month.selected {
     background: var(--bg-button) !important;
     color: var(--text-on-button) !important;
+}
+
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--border-secondary);
+    border-radius: 4px;
+    border: 2px solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-secondary);
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
 }
 
 
