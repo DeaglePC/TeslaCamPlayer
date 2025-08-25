@@ -35,6 +35,7 @@
         pause: "Pause",
         toggleDay: "Switch to Day Mode",
         toggleNight: "Switch to Night Mode",
+        invalidFolder: "This does not appear to be a valid TeslaCam directory. Please ensure you select the 'TeslaCam' directory which contains subfolders like RecentClips, SavedClips, etc."
     },
     zh: {
         pageTitle: "TeslaCam 播放器",
@@ -72,6 +73,7 @@
         pause: "暂停",
         toggleDay: "切换到日间模式",
         toggleNight: "切换到夜间模式",
+        invalidFolder: "这似乎不是一个有效的TeslaCam目录。请确保您选择了包含RecentClips, SavedClips等子文件夹的TeslaCam目录。"
     }
 };
 
@@ -918,13 +920,28 @@ class TeslaCamViewer {
 
     async handleFolderSelection(files) {
         this.allFiles = Array.from(files);
+
+        const hasTeslaCamSubfolders = this.allFiles.some(file => 
+            file.webkitRelativePath.includes('RecentClips/') ||
+            file.webkitRelativePath.includes('SavedClips/') ||
+            file.webkitRelativePath.includes('SentryClips/')
+        );
+
+        if (!hasTeslaCamSubfolders) {
+            alert(i18n[this.currentLanguage].invalidFolder);
+            this.dom.folderInput.value = ''; 
+            this.allFiles = [];
+            this.showInitialHelpMessage();
+            return;
+        }
+
         this.eventGroups = await this.processFiles(this.allFiles);
         this.filterAndRender();
     }
 
     async processFiles(files) {
         const eventMap = new Map();
-        const videoFiles = files.filter(f => f.name.endsWith('.mp4') && f.webkitRelativePath.includes('TeslaCam/'));
+        const videoFiles = files.filter(f => f.name.endsWith('.mp4'));
         for (const file of videoFiles) {
             const eventType = this.getEventType(file.webkitRelativePath);
             if (eventType === 'Unknown') continue;
