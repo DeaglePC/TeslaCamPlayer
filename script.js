@@ -833,6 +833,7 @@ class TeslaCamViewer {
             closeModalBtn: document.getElementById('closeModalBtn'),
             revealFileBtn: document.getElementById('revealFileBtn'),
             downloadFileBtn: document.getElementById('downloadFileBtn'),
+            headerLocationDisplay: document.getElementById('headerLocationDisplay'),
         };
         this.videoListComponent = new VideoListComponent('fileList', (eventId) => this.playEvent(eventId), this);
         this.multiCameraPlayer = new MultiCameraPlayer();
@@ -982,6 +983,18 @@ class TeslaCamViewer {
         const event = this.eventGroups.find(e => e.eventId === eventId);
         if (!event) return;
         this.currentEvent = event;
+
+        if (this.dom.headerLocationDisplay) {
+            if (event.city && event.lat && event.lon) {
+                this.dom.headerLocationDisplay.innerHTML = `📍 <span class="city-text">${event.city}</span>`;
+                this.dom.headerLocationDisplay.onclick = () => this.showMapModal(event.lat, event.lon);
+                this.dom.headerLocationDisplay.style.display = 'block';
+            } else {
+                this.dom.headerLocationDisplay.innerHTML = '';
+                this.dom.headerLocationDisplay.onclick = null;
+                this.dom.headerLocationDisplay.style.display = 'none';
+            }
+        }
 
         this.dom.playerArea.classList.remove('empty');
 

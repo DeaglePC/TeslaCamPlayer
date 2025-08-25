@@ -133,7 +133,7 @@ body {
 
 .main-header .theme-toggle-btn {
     margin-left: auto; /* Pushes it to the right */
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     padding: 0;
     line-height: 1;
     width: 40px;
@@ -153,8 +153,11 @@ body {
 }
 
 #revealFileBtn {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     margin-right: 4px;
+    position: relative;
+    top: -4px;
+    left: 2px;
 }
 
 #revealFileBtn:disabled {
@@ -163,8 +166,11 @@ body {
 }
 
 #downloadFileBtn {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     margin-right: 4px;
+    position: relative;
+    top: -3px;
+    left: 2px;
 }
 
 #downloadFileBtn:disabled {
@@ -714,10 +720,31 @@ body.dark-theme #eventFilter {
     filter: var(--icon-filter-on-dark);
 }
 
-.real-time-clock {
+.header-center-info {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-location {
+    color: var(--text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.header-location .city-text {
+    text-decoration: underline;
+}
+
+.header-location:hover {
+    text-decoration: underline;
+}
+
+.real-time-clock {
     color: var(--text-header);
     font-size: 1rem;
     font-weight: 500;
