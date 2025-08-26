@@ -889,6 +889,7 @@ class TeslaCamViewer {
     }
 
     initializeFlatpickr() {
+        if (!this.dom.dateFilter) return; // Guard clause
         const lang = this.currentLanguage;
         const translations = i18n[lang];
         this.flatpickrInstance = flatpickr(this.dom.dateFilter, {
@@ -899,8 +900,10 @@ class TeslaCamViewer {
                 this.filterAndRender();
             },
             onReady: (selectedDates, dateStr, instance) => {
-                const cal = instance.calendarContainer;
-                cal.classList.add('teslacam-flatpickr');
+                // Guard clause for onReady
+                if (instance.calendarContainer) {
+                    instance.calendarContainer.classList.add('teslacam-flatpickr');
+                }
             }
         });
     }
@@ -1096,10 +1099,14 @@ class TeslaCamViewer {
         this.currentLanguage = lang;
         localStorage.setItem('language', lang);
         document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-        if (this.flatpickrInstance) {
+        // Guard clause for flatpickr instance and its methods
+        if (this.flatpickrInstance && typeof this.flatpickrInstance.set === 'function') {
             const isChinese = lang === 'zh';
             this.flatpickrInstance.set('locale', isChinese ? 'zh' : 'default');
             this.flatpickrInstance.redraw();
+        }
+        // Guard clause for dateFilter element
+        if (this.dom.dateFilter) {
             this.dom.dateFilter.placeholder = i18n[lang].selectDate;
         }
         this.updateAllUIText(lang);
