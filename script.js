@@ -824,6 +824,7 @@ class TeslaCamViewer {
             eventFilter: document.getElementById('eventFilter'),
             sidebar: document.querySelector('.sidebar'),
             toggleSidebarBtn: document.getElementById('toggleSidebarBtn'),
+            openSidebarBtn: document.getElementById('openSidebarBtn'),
             playerArea: document.getElementById('playerArea'),
             overlay: document.getElementById('overlay'),
             themeToggleBtn: document.getElementById('themeToggleBtn'),
@@ -852,6 +853,9 @@ class TeslaCamViewer {
         this.dom.folderInput.addEventListener('change', (e) => this.handleFolderSelection(e.target.files));
         this.dom.eventFilter.addEventListener('change', () => this.filterAndRender());
         this.dom.toggleSidebarBtn.addEventListener('click', () => this.toggleSidebar());
+        if (this.dom.openSidebarBtn) {
+            this.dom.openSidebarBtn.addEventListener('click', () => this.toggleSidebar(true));
+        }
         this.dom.overlay.addEventListener('click', () => this.toggleSidebar(false));
         this.dom.playerArea.addEventListener('click', (e) => {
             const container = e.target.closest('.video-container.is-pip');
@@ -913,6 +917,10 @@ class TeslaCamViewer {
 
     handleResize() {
         this.dom.sidebar.style.transition = 'none';
+        
+        const isCollapsed = this.dom.sidebar.classList.contains('collapsed');
+        this.dom.overlay.classList.toggle('active', !isCollapsed && window.innerWidth < 768);
+
         setTimeout(() => {
             this.dom.sidebar.style.transition = '';
         }, 50);
@@ -1149,6 +1157,7 @@ class TeslaCamViewer {
             isNowCollapsed = this.dom.sidebar.classList.toggle('collapsed');
         }
         
+        document.body.classList.toggle('sidebar-collapsed', isNowCollapsed);
         this.dom.toggleSidebarBtn.classList.toggle('collapsed', isNowCollapsed);
         this.dom.overlay.classList.toggle('active', !isNowCollapsed && window.innerWidth < 768);
     }

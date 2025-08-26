@@ -131,8 +131,13 @@ body {
     margin-right: 10px;
 }
 
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .main-header .theme-toggle-btn {
-    margin-left: auto; /* Pushes it to the right */
     font-size: 1.2rem;
     padding: 0;
     line-height: 1;
@@ -197,6 +202,25 @@ body {
     background-color: var(--bg-header-button-hover);
 }
 
+.open-sidebar-btn {
+    display: none; /* 默认隐藏 */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.open-sidebar-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+.open-sidebar-btn:hover {
+    background-color: var(--bg-header-button-hover);
+}
+
 .toggle-sidebar-btn.collapsed svg {
     transform: rotate(180deg);
 }
@@ -219,23 +243,28 @@ body {
 }
 
 .sidebar-header {
+    display: flex;
+    align-items: center;
     padding: 1rem;
     border-bottom: 1px solid var(--border-primary);
     background-color: var(--bg-secondary);
     transition: background-color 0.3s, border-color 0.3s;
+    gap: 10px;
 }
 
 .sidebar-header .header-title {
-    margin-bottom: 1rem;
+    flex-grow: 1;
     font-size: 1.25rem;
-    padding: 0 0 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .filters {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding: 0 0rem 1rem;
+    padding: 0 1rem 1rem 1rem;
     border-bottom: 1px solid var(--border-primary);
     background-color: var(--bg-secondary);
     transition: background-color 0.3s, border-color 0.3s;
@@ -834,6 +863,11 @@ body.dark-theme #eventFilter {
         margin-left: 0;
         transform: translateX(-100%);
     }
+
+}
+
+body.sidebar-collapsed .open-sidebar-btn {
+    display: block;
 }
 
 /* Map Modal Styles */

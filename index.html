@@ -16,21 +16,26 @@
                     <img src="logo.png" alt="Logo" class="header-logo">
                     <span>TeslaCam Player</span>
                 </div>
-        <div class="filters">
-            <div class="filter-group">
-                <label for="dateFilter">日期</label>
-                <input type="text" id="dateFilter" placeholder="选择日期">
+                    <button id="toggleSidebarBtn" class="toggle-sidebar-btn" title="切换侧边栏">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 6h16M4 12h16M4 18h16" stroke="var(--icon-color, white)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
             </div>
-            <div class="filter-group">
-                <label for="eventFilter">事件类型</label>
-                <select id="eventFilter">
-                    <option value="">所有类型</option>
-                    <option value="RecentClips">最近片段</option>
-                    <option value="SavedClips">保存片段</option>
-                    <option value="SentryClips">哨兵模式</option>
-                </select>
-            </div>
-        </div>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="dateFilter">日期</label>
+                    <input type="text" id="dateFilter" placeholder="选择日期">
+                </div>
+                <div class="filter-group">
+                    <label for="eventFilter">事件类型</label>
+                    <select id="eventFilter">
+                        <option value="">所有类型</option>
+                        <option value="RecentClips">最近片段</option>
+                        <option value="SavedClips">保存片段</option>
+                        <option value="SentryClips">哨兵模式</option>
+                    </select>
+                </div>
             </div>
             <div id="fileList" class="file-list">
             </div>
@@ -41,19 +46,23 @@
         </div>
         <div class="main-content">
             <header class="main-header">
-                <button id="toggleSidebarBtn" class="toggle-sidebar-btn" title="切换侧边栏">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 6h16M4 12h16M4 18h16" stroke="var(--icon-color, white)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
+                <div class="header-left">
+                    <button id="openSidebarBtn" class="open-sidebar-btn" title="打开侧边栏">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 6h16M4 12h16M4 18h16" stroke="var(--icon-color, white)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
                 <div class="header-center-info">
                     <div id="headerLocationDisplay" class="header-location"></div>
                     <div id="realTimeClock" class="real-time-clock">--:--:--</div>
                 </div>
-                <button id="revealFileBtn" class="control-btn" title="显示文件路径" disabled>📂</button>
-                <button id="downloadFileBtn" class="control-btn" title="下载当前文件" disabled>💾</button>
-                <button id="themeToggleBtn" class="control-btn theme-toggle-btn" title="切换主题"></button>
-                <button id="langToggleBtn" class="control-btn lang-toggle-btn" title="Switch Language">中</button>
+                <div class="header-right">
+                    <button id="revealFileBtn" class="control-btn" title="显示文件路径" disabled>📂</button>
+                    <button id="downloadFileBtn" class="control-btn" title="下载当前文件" disabled>💾</button>
+                    <button id="themeToggleBtn" class="control-btn theme-toggle-btn" title="切换主题"></button>
+                    <button id="langToggleBtn" class="control-btn lang-toggle-btn" title="Switch Language">中</button>
+                </div>
             </header>
             <div id="playerArea" class="player-area empty">
                 <div id="front-container" class="video-container is-main" data-camera="front">
