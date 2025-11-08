@@ -7,6 +7,9 @@ A modern, browser-based viewer for your TeslaCam footage. Play all four camera a
 ## ✨ Features
 
 *   🎥 **Quad-Camera Sync Playback**: View footage from all four cameras at once, perfectly synchronized.
+*   ✂️ **Video Clipping**: Select and export specific time ranges from your recordings. Automatically handles multi-segment clips.
+*   🕐 **Timestamp Watermark**: Add real-time timestamps to exported videos showing the exact recording time.
+*   🎞️ **Grid Video Composition**: Merge all four camera views into a single 2x2 grid video.
 *   🎨 **Dual-Theme Interface**: Switch between a light and dark mode. Automatically detects your system's preference!
 *   🌐 **Bilingual Support (EN/ZH)**: Interface in English or Chinese. Automatically detects your browser's language.
 *   ⏩ **Playback Speed Control**: Watch footage at 0.5x, 1.0x, 1.5x, or 2.0x speed.
@@ -64,6 +67,18 @@ If you have Docker installed, you can easily run the application in a container.
 *   Click on a city name (if available) to open the location on Gaode Map or Google Maps.
 *   When paused, click the 💾 icon in the header to download the current video file.
 
+**4. Clip and Export Videos**
+
+1.  Click the ✂️ (scissors) icon in the video controls to enter clip mode.
+2.  Drag the blue handles on the progress bar to select the start and end points.
+3.  Click the ✂️ icon again to open the export dialog.
+4.  Choose which cameras to export and configure options:
+    - **Add Timestamp Watermark**: Overlay real-time timestamp on the video
+    - **Merge as Grid Video**: Combine all cameras into a single 2x2 grid view
+5.  Click "Start Export" to download your clip(s).
+
+*Note: Exports are in WebM format. Processing includes real-time rendering with timestamp overlay.*
+
 ## ⌨️ Keyboard Shortcuts
 
 *   **`Spacebar`**: Play / Pause the video.
@@ -93,8 +108,11 @@ MIT License
 ## ✨ 功能特性
 
 *   🎥 **四镜头同步播放**: 完美同步播放所有四个摄像头的画面。
-*   🎨 **双主题界面**: 可在浅色和深色模式之间切换，并能自动匹配您的系统偏好。
-*   🌐 **双语支持 (中/英)**: 提供中文和英文界面，并能自动检测您的浏览器语言。
+*   ✂️ **视频剪辑**: 选择并导出录像的特定时间段。自动处理跨多个文件的片段。
+*   🕐 **时间戳水印**: 为导出的视频添加实时时间戳,显示准确的拍摄时间。
+*   🎞️ **四宫格视频合成**: 将四个摄像头视角合成为一个 2x2 网格视频。
+*   🎨 **双主题界面**: 可在浅色和深色模式之间切换,并能自动匹配您的系统偏好。
+*   🌐 **双语支持 (中/英)**: 提供中文和英文界面,并能自动检测您的浏览器语言。
 *   ⏩ **播放速度控制**: 以 0.5x、1.0x、1.5x 或 2.0x 的速度观看录像。
 *   ↔️ **可折叠侧边栏**: 隐藏事件列表，最大化视频观看空间。
 *   🔍 **智能筛选**: 按日期和事件类型（最近、已保存、哨兵）轻松筛选录像。
@@ -147,8 +165,20 @@ npx http-server -p 8080 .
 *   您的录像将按日期在侧边栏中列出。
 *   使用筛选器查找特定事件。
 *   点击任何事件即可开始播放。
-*   点击事件列表中的城市名称（如果存在），可以在高德地图或谷歌地图上打开该位置。
-*   暂停时，点击标题栏的 💾 图标即可下载当前视频文件。
+*   点击事件列表中的城市名称(如果存在),可以在高德地图或谷歌地图上打开该位置。
+*   暂停时,点击标题栏的 💾 图标即可下载当前视频文件。
+
+**4. 剪辑和导出视频**
+
+1.  点击视频控制栏中的 ✂️ (剪刀)图标进入剪辑模式。
+2.  拖动进度条上的蓝色手柄选择起始和结束位置。
+3.  再次点击 ✂️ 图标打开导出对话框。
+4.  选择要导出的摄像头并配置选项:
+    - **添加时间水印**: 在视频上叠加实时时间戳
+    - **合成四宫格视频**: 将所有摄像头合成为单个 2x2 网格视图
+5.  点击"开始导出"下载您的片段。
+
+*注意: 导出格式为 WebM。处理过程包括实时渲染和时间戳叠加。*
 
 ## ⌨️ 键盘快捷键
 

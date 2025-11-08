@@ -640,6 +640,66 @@ body.dark-theme #eventFilter {
     background-color: var(--text-on-dark);
     border-radius: 2px;
     width: 0;
+    z-index: 1;
+}
+
+.clip-selection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: rgba(0, 123, 255, 0.3);
+    border-left: 2px solid #007bff;
+    border-right: 2px solid #007bff;
+    pointer-events: none;
+    display: none;
+    z-index: 2;
+}
+
+.clip-selection.active {
+    display: block;
+}
+
+.clip-handle {
+    width: 16px;
+    height: 24px;
+    background-color: #007bff;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    cursor: ew-resize;
+    border-radius: 3px;
+    display: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.clip-handle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 12px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.clip-handle.active {
+    display: block;
+}
+
+.clip-handle:hover {
+    background-color: #0056b3;
+}
+
+.clip-btn {
+    color: var(--text-on-dark);
+}
+
+.clip-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 .progress-handle {
@@ -952,6 +1012,94 @@ body.sidebar-collapsed .open-sidebar-btn {
     color: var(--text-secondary);
     cursor: pointer;
     line-height: 1;
+}
+
+/* Clip Modal Styles */
+.clip-modal {
+    max-width: 500px;
+    width: 90%;
+}
+
+.clip-info {
+    background-color: var(--bg-tertiary);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.clip-info-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.clip-info-item:last-child {
+    margin-bottom: 0;
+}
+
+.clip-info-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.clip-options {
+    margin-bottom: 20px;
+}
+
+.clip-option-group {
+    margin-bottom: 15px;
+}
+
+.clip-option-group label {
+    display: block;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.camera-checkboxes {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.camera-checkboxes label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 0;
+    font-weight: normal;
+}
+
+.camera-checkboxes input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.clip-progress {
+    margin-bottom: 20px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: var(--bg-tertiary);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #007bff;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
 }
 
 /* City Link Style */
