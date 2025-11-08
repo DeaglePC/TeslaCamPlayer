@@ -51,7 +51,9 @@
         processing: "Processing...",
         exporting: "Exporting...",
         complete: "Complete!",
-        selectClipRange: "Select clip range on progress bar first"
+        selectClipRange: "Select clip range on progress bar first",
+        selectAtLeastOneCamera: "Please select at least one camera",
+        exportFailed: "Export failed: "
     },
     zh: {
         pageTitle: "TeslaCam 播放器",
@@ -105,7 +107,9 @@
         processing: "处理中...",
         exporting: "导出中...",
         complete: "完成!",
-        selectClipRange: "请先在进度条上选择剪辑范围"
+        selectClipRange: "请先在进度条上选择剪辑范围",
+        selectAtLeastOneCamera: "请至少选择一个摄像头",
+        exportFailed: "导出失败: "
     }
 };
 
@@ -1894,8 +1898,29 @@ class TeslaCamViewer {
         
         const translations = i18n[this.currentLanguage];
         
-        // Update modal title
+        // Update modal title and labels
         this.dom.clipModalTitle.textContent = translations.exportClip;
+        
+        // Update labels
+        document.getElementById('selectCamerasLabel').textContent = translations.selectCameras;
+        document.getElementById('addTimestampLabel').textContent = translations.addTimestamp;
+        document.getElementById('mergeVideosLabel').textContent = translations.mergeVideos;
+        this.dom.startClipBtn.textContent = translations.startExport;
+        this.dom.cancelClipBtn.textContent = translations.cancel;
+        
+        // Update camera labels
+        document.querySelectorAll('[data-i18n="front"]').forEach(el => el.textContent = translations.front);
+        document.querySelectorAll('[data-i18n="back"]').forEach(el => el.textContent = translations.back);
+        document.querySelectorAll('[data-i18n="left"]').forEach(el => el.textContent = translations.left);
+        document.querySelectorAll('[data-i18n="right"]').forEach(el => el.textContent = translations.right);
+        
+        // Update clip info labels
+        const clipDurationLabel = this.dom.clipDuration.previousElementSibling;
+        const clipStartTimeLabel = this.dom.clipStartTime.previousElementSibling;
+        const clipEndTimeLabel = this.dom.clipEndTime.previousElementSibling;
+        if (clipDurationLabel) clipDurationLabel.textContent = translations.clipDuration;
+        if (clipStartTimeLabel) clipStartTimeLabel.textContent = translations.clipStartTime;
+        if (clipEndTimeLabel) clipEndTimeLabel.textContent = translations.clipEndTime;
         
         // Calculate duration
         const duration = this.videoControls.clipEndTime - this.videoControls.clipStartTime;
@@ -1969,7 +1994,7 @@ class TeslaCamViewer {
         if (this.dom.exportRight.checked) cameras.push('right');
         
         if (cameras.length === 0) {
-            alert('请至少选择一个摄像头');
+            alert(translations.selectAtLeastOneCamera);
             return;
         }
         
@@ -2038,7 +2063,7 @@ class TeslaCamViewer {
             
         } catch (error) {
             console.error('Clip export error:', error);
-            alert('导出失败: ' + error.message);
+            alert(translations.exportFailed + error.message);
             this.dom.clipProgress.style.display = 'none';
             this.dom.startClipBtn.disabled = false;
             this.dom.cancelClipBtn.disabled = false;

@@ -167,19 +167,19 @@
             </div>
             <div class="clip-options">
                 <div class="clip-option-group">
-                    <label>选择摄像头:</label>
+                    <label id="selectCamerasLabel">选择摄像头:</label>
                     <div class="camera-checkboxes">
-                        <label><input type="checkbox" id="exportFront" checked> 前</label>
-                        <label><input type="checkbox" id="exportBack"> 后</label>
-                        <label><input type="checkbox" id="exportLeft"> 左</label>
-                        <label><input type="checkbox" id="exportRight"> 右</label>
+                        <label><input type="checkbox" id="exportFront" checked> <span data-i18n="front">前</span></label>
+                        <label><input type="checkbox" id="exportBack"> <span data-i18n="back">后</span></label>
+                        <label><input type="checkbox" id="exportLeft"> <span data-i18n="left">左</span></label>
+                        <label><input type="checkbox" id="exportRight"> <span data-i18n="right">右</span></label>
                     </div>
                 </div>
                 <div class="clip-option-group">
-                    <label><input type="checkbox" id="addTimestamp" checked> 添加时间水印</label>
+                    <label><input type="checkbox" id="addTimestamp" checked> <span id="addTimestampLabel">添加时间水印</span></label>
                 </div>
                 <div class="clip-option-group">
-                    <label><input type="checkbox" id="mergeVideos"> 合成四宫格视频</label>
+                    <label><input type="checkbox" id="mergeVideos"> <span id="mergeVideosLabel">合成四宫格视频</span></label>
                 </div>
             </div>
             <div id="clipProgress" class="clip-progress" style="display: none;">
