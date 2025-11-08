@@ -1369,12 +1369,12 @@ class VideoClipProcessor {
                         
                         this.ctx.drawImage(video, x, y, cellWidth, cellHeight);
                         
-                        // Draw camera label
+                        // Draw camera label (doubled size)
                         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-                        this.ctx.fillRect(x + 10, y + 10, 60, 30);
+                        this.ctx.fillRect(x + 10, y + 10, 120, 60);
                         this.ctx.fillStyle = '#fff';
-                        this.ctx.font = 'bold 18px Arial';
-                        this.ctx.fillText(camera.toUpperCase(), x + 20, y + 32);
+                        this.ctx.font = 'bold 36px Arial';
+                        this.ctx.fillText(camera.toUpperCase(), x + 20, y + 54);
                     }
                     
                     // Draw timestamp if needed
@@ -1390,13 +1390,13 @@ class VideoClipProcessor {
                             hour12: false
                         }).replace(/\//g, '-');
                         
-                        // Draw at bottom center
+                        // Draw at bottom center (doubled size)
                         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-                        this.ctx.fillRect(gridCanvasWidth / 2 - 150, gridCanvasHeight - 50, 300, 40);
+                        this.ctx.fillRect(gridCanvasWidth / 2 - 300, gridCanvasHeight - 90, 600, 80);
                         this.ctx.fillStyle = '#fff';
-                        this.ctx.font = 'bold 24px Arial';
+                        this.ctx.font = 'bold 48px Arial';
                         this.ctx.textAlign = 'center';
-                        this.ctx.fillText(timeString, gridCanvasWidth / 2, gridCanvasHeight - 20);
+                        this.ctx.fillText(timeString, gridCanvasWidth / 2, gridCanvasHeight - 35);
                         this.ctx.textAlign = 'left';
                     }
                     
