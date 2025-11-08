@@ -37,6 +37,7 @@
         toggleNight: "Switch to Night Mode",
         invalidFolder: "This does not appear to be a valid TeslaCam directory. Please ensure you select the 'TeslaCam' directory which contains subfolders like RecentClips, SavedClips, etc.",
         clipVideo: "Clip Video",
+        confirmClip: "Confirm Clip Range",
         exportClip: "Export Video Clip",
         clipDuration: "Duration:",
         clipStartTime: "Start Time:",
@@ -90,6 +91,7 @@
         toggleNight: "切换到夜间模式",
         invalidFolder: "这似乎不是一个有效的TeslaCam目录。请确保您选择了包含RecentClips, SavedClips等子文件夹的TeslaCam目录。",
         clipVideo: "剪辑视频",
+        confirmClip: "确认剪辑范围",
         exportClip: "导出视频片段",
         clipDuration: "选中时长:",
         clipStartTime: "起始时间:",
@@ -561,6 +563,7 @@ class ModernVideoControls {
         
         // Clip elements
         this.clipBtn = this.container.querySelector('#clipBtn');
+        this.confirmClipBtn = this.container.querySelector('#confirmClipBtn');
         this.clipSelection = this.container.querySelector('#clipSelection');
         this.clipStartHandle = this.container.querySelector('#clipStartHandle');
         this.clipEndHandle = this.container.querySelector('#clipEndHandle');
@@ -605,12 +608,19 @@ class ModernVideoControls {
         if (this.clipBtn) {
             this.clipBtn.addEventListener('click', () => {
                 if (!this.clipModeActive) {
-                    // First click: enter clip mode
+                    // Enter clip mode
                     this.toggleClipMode();
                 } else {
-                    // Second click: show export modal
-                    this.viewer.showClipModal();
+                    // Exit clip mode
+                    this.toggleClipMode();
                 }
+            });
+        }
+        
+        // Confirm clip button
+        if (this.confirmClipBtn) {
+            this.confirmClipBtn.addEventListener('click', () => {
+                this.viewer.showClipModal();
             });
         }
 
@@ -668,6 +678,11 @@ class ModernVideoControls {
             this.clipStartHandle.classList.add('active');
             this.clipEndHandle.classList.add('active');
             this.clipBtn.style.color = '#007bff';
+            
+            // Show confirm button, hide clip button
+            if (this.confirmClipBtn) {
+                this.confirmClipBtn.style.display = 'block';
+            }
         } else {
             // Exit clip mode
             this.clipSelection.classList.remove('active');
@@ -676,6 +691,11 @@ class ModernVideoControls {
             this.clipBtn.style.color = '';
             this.clipStartTime = null;
             this.clipEndTime = null;
+            
+            // Hide confirm button
+            if (this.confirmClipBtn) {
+                this.confirmClipBtn.style.display = 'none';
+            }
         }
     }
     
@@ -901,6 +921,11 @@ class ModernVideoControls {
         if (this.clipBtn) {
             this.clipBtn.disabled = !this.viewer.currentEvent;
             this.clipBtn.title = i18n[this.viewer.currentLanguage].clipVideo;
+        }
+        
+        // Update confirm clip button title
+        if (this.confirmClipBtn) {
+            this.confirmClipBtn.title = i18n[this.viewer.currentLanguage].confirmClip;
         }
     }
 

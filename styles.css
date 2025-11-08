@@ -702,6 +702,20 @@ body.dark-theme #eventFilter {
     cursor: not-allowed;
 }
 
+.confirm-clip-btn {
+    color: #28a745;
+    animation: pulse-confirm 2s infinite;
+}
+
+.confirm-clip-btn:hover {
+    color: #218838;
+}
+
+@keyframes pulse-confirm {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
 .progress-handle {
     width: 14px;
     height: 14px;
