@@ -66,10 +66,10 @@ Because of web browser security policies, you need to run this application from 
 If you have Node.js installed, the easiest way is to use `npx`:
 
 ```bash
-npx http-server -p 8080 .
+npx http-server -p 8188 .
 ```
 
-Then, open your browser and go to `http://localhost:8080`.
+Then, open your browser and go to `http://localhost:8188`.
 
 **2. Deploy with Docker**
 
@@ -85,7 +85,7 @@ The easiest way is to use Docker Compose with the pre-built image:
     ```
 
 2.  **Access the application:**
-    Open your browser and go to `http://localhost:8080`.
+    Open your browser and go to `http://localhost:8188`.
 
 3.  **Stop the application:**
     ```bash
@@ -107,17 +107,17 @@ The easiest way is to use Docker Compose with the pre-built image:
 
 1.  **Pull and run the pre-built image:**
     ```bash
-    docker run -d -p 8080:80 --name teslacamplayer dupengcheng66666/teslacamplayer:latest
+    docker run -d -p 8188:80 --name teslacamplayer dupengcheng66666/teslacamplayer:latest
     ```
 
 2.  **Or build your own image:**
     ```bash
     docker build -t teslacam-player .
-    docker run -d -p 8080:80 teslacam-player
+    docker run -d -p 8188:80 teslacam-player
     ```
 
 3.  **Access the application:**
-    Open your browser and go to `http://localhost:8080`.
+    Open your browser and go to `http://localhost:8188`.
 
 **3. Select Your TeslaCam Folder**
 
@@ -176,3 +176,4 @@ This tool is built with privacy as a top priority. **All file processing happens
 ## 📄 License
 
 MIT License
+
