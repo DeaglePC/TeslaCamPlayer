@@ -246,8 +246,8 @@ body {
     display: flex;
     align-items: center;
     padding: 1rem;
-    border-bottom: 1px solid var(--border-primary);
-    background-color: var(--bg-secondary);
+    border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
     transition: background-color 0.3s, border-color 0.3s;
     gap: 10px;
 }
@@ -258,6 +258,11 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
 }
 
 .filters {
@@ -470,18 +475,20 @@ body.dark-theme #eventFilter {
     width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-on-button);
-    background-color: var(--bg-button);
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
     border-radius: 8px;
     cursor: pointer;
     text-align: center;
-    transition: background-color 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 #selectFolderBtn:hover {
-    background-color: var(--bg-button-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 /* Player Area */
