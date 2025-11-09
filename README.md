@@ -47,6 +47,18 @@ A modern, browser-based viewer for your TeslaCam footage. Play all four camera a
 
 ## 🚀 How to Use
 
+### 🌐 Online Version (Quickest Way)
+
+You can directly use the online version without any installation:
+
+**👉 [https://teslacam.dpc.cool/](https://teslacam.dpc.cool/)**
+
+Simply visit the website and select your TeslaCam folder to start using it right away. All processing is done locally in your browser, ensuring your privacy.
+
+---
+
+### 💻 Local Deployment
+
 Because of web browser security policies, you need to run this application from a local web server.
 
 **1. Start the Local Server**
