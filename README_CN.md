@@ -59,17 +59,48 @@ npx http-server -p 8080 .
 
 然后，打开浏览器并访问 `http://localhost:8080`。
 
-**2. 通过 Docker 部署 (推荐)**
+**2. 通过 Docker 部署**
 
 如果您安装了 Docker，可以非常方便地在容器中运行此应用。
 
-1.  **构建 Docker 镜像:**
+**方式 A: 使用 Docker Compose (推荐)**
+
+最简单的方式是使用 Docker Compose 和预构建的镜像：
+
+1.  **启动应用:**
     ```bash
-    docker build -t teslacam-player .
+    docker compose up -d
     ```
 
-2.  **运行 Docker 容器:**
+2.  **访问应用:**
+    打开浏览器并访问 `http://localhost:8080`。
+
+3.  **停止应用:**
     ```bash
+    docker compose down
+    ```
+
+4.  **查看日志:**
+    ```bash
+    docker compose logs -f
+    ```
+
+5.  **更新到最新版本:**
+    ```bash
+    docker compose pull
+    docker compose up -d
+    ```
+
+**方式 B: 使用 Docker 命令行**
+
+1.  **拉取并运行预构建的镜像:**
+    ```bash
+    docker run -d -p 8080:80 --name teslacamplayer dupengcheng66666/teslacamplayer:latest
+    ```
+
+2.  **或者构建自己的镜像:**
+    ```bash
+    docker build -t teslacam-player .
     docker run -d -p 8080:80 teslacam-player
     ```
 

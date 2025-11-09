@@ -59,17 +59,48 @@ npx http-server -p 8080 .
 
 Then, open your browser and go to `http://localhost:8080`.
 
-**2. Deploy with Docker (Recommended)**
+**2. Deploy with Docker**
 
 If you have Docker installed, you can easily run the application in a container.
 
-1.  **Build the Docker image:**
+**Option A: Using Docker Compose (Recommended)**
+
+The easiest way is to use Docker Compose with the pre-built image:
+
+1.  **Start the application:**
     ```bash
-    docker build -t teslacam-player .
+    docker compose up -d
     ```
 
-2.  **Run the Docker container:**
+2.  **Access the application:**
+    Open your browser and go to `http://localhost:8080`.
+
+3.  **Stop the application:**
     ```bash
+    docker compose down
+    ```
+
+4.  **View logs:**
+    ```bash
+    docker compose logs -f
+    ```
+
+5.  **Update to latest version:**
+    ```bash
+    docker compose pull
+    docker compose up -d
+    ```
+
+**Option B: Using Docker CLI**
+
+1.  **Pull and run the pre-built image:**
+    ```bash
+    docker run -d -p 8080:80 --name teslacamplayer dupengcheng66666/teslacamplayer:latest
+    ```
+
+2.  **Or build your own image:**
+    ```bash
+    docker build -t teslacam-player .
     docker run -d -p 8080:80 teslacam-player
     ```
 
