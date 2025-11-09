@@ -7,6 +7,8 @@
     <link rel="icon" href="logo.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.7/dist/umd/ffmpeg.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
 </head>
 <body>
     <div class="container">
@@ -87,8 +89,11 @@
                         <div id="progressContainer" class="progress-container">
                             <div class="progress-track">
                                 <div id="progressPlayed" class="progress-played"></div>
+                                <div id="clipSelection" class="clip-selection"></div>
                             </div>
                             <div id="progressHandle" class="progress-handle"></div>
+                            <div id="clipStartHandle" class="clip-handle clip-start-handle"></div>
+                            <div id="clipEndHandle" class="clip-handle clip-end-handle"></div>
                             <div id="timePreview" class="time-preview">
                                 <div class="time-preview-time">00:00</div>
                             </div>
@@ -101,6 +106,18 @@
                                 <div id="videoTimeDisplay" class="video-time-display">00:00 / --:--</div>
                             </div>
                             <div class="controls-right">
+                                <button id="clipBtn" class="control-btn clip-btn" title="剪辑视频" disabled>
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                                        <circle cx="6" cy="6" r="2" stroke="currentColor" stroke-width="2"/>
+                                        <circle cx="6" cy="18" r="2" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                                <button id="confirmClipBtn" class="control-btn confirm-clip-btn" title="确认剪辑范围" style="display: none;">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                                        <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
                                 <div id="speedControl" class="speed-control">
                                     <button id="speedBtn" class="control-btn speed-btn">1x</button>
                                     <div class="speed-options">
@@ -129,6 +146,55 @@
                 <button id="googleMapBtn" class="map-btn google"></button>
             </div>
             <button id="closeModalBtn" class="close-modal-btn">&times;</button>
+        </div>
+    </div>
+
+    <!-- Clip Export Modal -->
+    <div id="clipModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content clip-modal">
+            <h4 id="clipModalTitle">导出视频片段</h4>
+            <div class="clip-info">
+                <div class="clip-info-item">
+                    <span class="clip-info-label">选中时长:</span>
+                    <span id="clipDuration">00:00</span>
+                </div>
+                <div class="clip-info-item">
+                    <span class="clip-info-label">起始时间:</span>
+                    <span id="clipStartTime">--:--:--</span>
+                </div>
+                <div class="clip-info-item">
+                    <span class="clip-info-label">结束时间:</span>
+                    <span id="clipEndTime">--:--:--</span>
+                </div>
+            </div>
+            <div class="clip-options">
+                <div class="clip-option-group">
+                    <label id="selectCamerasLabel">选择摄像头:</label>
+                    <div class="camera-checkboxes">
+                        <label><input type="checkbox" id="exportFront" checked> <span data-i18n="front">前</span></label>
+                        <label><input type="checkbox" id="exportBack"> <span data-i18n="back">后</span></label>
+                        <label><input type="checkbox" id="exportLeft"> <span data-i18n="left">左</span></label>
+                        <label><input type="checkbox" id="exportRight"> <span data-i18n="right">右</span></label>
+                    </div>
+                </div>
+                <div class="clip-option-group">
+                    <label><input type="checkbox" id="addTimestamp" checked> <span id="addTimestampLabel">添加时间水印</span></label>
+                </div>
+                <div class="clip-option-group">
+                    <label><input type="checkbox" id="mergeVideos"> <span id="mergeVideosLabel">合成四宫格视频</span></label>
+                </div>
+            </div>
+            <div id="clipProgress" class="clip-progress" style="display: none;">
+                <div class="progress-bar">
+                    <div id="clipProgressBar" class="progress-bar-fill"></div>
+                </div>
+                <div id="clipProgressText" class="progress-text">准备中...</div>
+            </div>
+            <div class="modal-buttons">
+                <button id="startClipBtn" class="map-btn gaode">开始导出</button>
+                <button id="cancelClipBtn" class="map-btn" style="background-color: #6c757d;">取消</button>
+            </div>
+            <button id="closeClipModalBtn" class="close-modal-btn">&times;</button>
         </div>
     </div>
 

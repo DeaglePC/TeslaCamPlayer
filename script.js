@@ -35,7 +35,25 @@
         pause: "Pause",
         toggleDay: "Switch to Day Mode",
         toggleNight: "Switch to Night Mode",
-        invalidFolder: "This does not appear to be a valid TeslaCam directory. Please ensure you select the 'TeslaCam' directory which contains subfolders like RecentClips, SavedClips, etc."
+        invalidFolder: "This does not appear to be a valid TeslaCam directory. Please ensure you select the 'TeslaCam' directory which contains subfolders like RecentClips, SavedClips, etc.",
+        clipVideo: "Clip Video",
+        confirmClip: "Confirm Clip Range",
+        exportClip: "Export Video Clip",
+        clipDuration: "Duration:",
+        clipStartTime: "Start Time:",
+        clipEndTime: "End Time:",
+        selectCameras: "Select Cameras:",
+        addTimestamp: "Add Timestamp Watermark",
+        mergeVideos: "Merge as Grid Video",
+        startExport: "Start Export",
+        cancel: "Cancel",
+        preparing: "Preparing...",
+        processing: "Processing...",
+        exporting: "Exporting...",
+        complete: "Complete!",
+        selectClipRange: "Select clip range on progress bar first",
+        selectAtLeastOneCamera: "Please select at least one camera",
+        exportFailed: "Export failed: "
     },
     zh: {
         pageTitle: "TeslaCam 播放器",
@@ -73,7 +91,25 @@
         pause: "暂停",
         toggleDay: "切换到日间模式",
         toggleNight: "切换到夜间模式",
-        invalidFolder: "这似乎不是一个有效的TeslaCam目录。请确保您选择了包含RecentClips, SavedClips等子文件夹的TeslaCam目录。"
+        invalidFolder: "这似乎不是一个有效的TeslaCam目录。请确保您选择了包含RecentClips, SavedClips等子文件夹的TeslaCam目录。",
+        clipVideo: "剪辑视频",
+        confirmClip: "确认剪辑范围",
+        exportClip: "导出视频片段",
+        clipDuration: "选中时长:",
+        clipStartTime: "起始时间:",
+        clipEndTime: "结束时间:",
+        selectCameras: "选择摄像头:",
+        addTimestamp: "添加时间水印",
+        mergeVideos: "合成四宫格视频",
+        startExport: "开始导出",
+        cancel: "取消",
+        preparing: "准备中...",
+        processing: "处理中...",
+        exporting: "导出中...",
+        complete: "完成!",
+        selectClipRange: "请先在进度条上选择剪辑范围",
+        selectAtLeastOneCamera: "请至少选择一个摄像头",
+        exportFailed: "导出失败: "
     }
 };
 
@@ -502,6 +538,14 @@ class ModernVideoControls {
         this.isDragging = false;
         this.wasPlaying = false;
         this.currentEventStartTime = null;
+        
+        // Clip selection state
+        this.clipStartTime = null;
+        this.clipEndTime = null;
+        this.isDraggingClipStart = false;
+        this.isDraggingClipEnd = false;
+        this.clipModeActive = false;
+        
         this.initializeElements();
         this.bindEvents();
     }
@@ -520,6 +564,13 @@ class ModernVideoControls {
         this.speedControl = this.container.querySelector('#speedControl');
         this.speedBtn = this.container.querySelector('#speedBtn');
         this.speedOptions = this.container.querySelector('.speed-options');
+        
+        // Clip elements
+        this.clipBtn = this.container.querySelector('#clipBtn');
+        this.confirmClipBtn = this.container.querySelector('#confirmClipBtn');
+        this.clipSelection = this.container.querySelector('#clipSelection');
+        this.clipStartHandle = this.container.querySelector('#clipStartHandle');
+        this.clipEndHandle = this.container.querySelector('#clipEndHandle');
     }
 
     bindEvents() {
@@ -531,10 +582,49 @@ class ModernVideoControls {
             document.addEventListener('mouseup', (e) => this.stopDrag(e));
 
             this.progressContainer.addEventListener('mousemove', (e) => {
-                if (!this.isDragging) this.showTimePreview(e);
+                if (!this.isDragging && !this.isDraggingClipStart && !this.isDraggingClipEnd) this.showTimePreview(e);
             });
             this.progressContainer.addEventListener('mouseleave', () => {
-                if (!this.isDragging) this.hideTimePreview();
+                if (!this.isDragging && !this.isDraggingClipStart && !this.isDraggingClipEnd) this.hideTimePreview();
+            });
+        }
+        
+        // Clip handle events
+        if (this.clipStartHandle) {
+            this.clipStartHandle.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                this.isDraggingClipStart = true;
+                this.wasPlaying = this.multiCameraPlayer.isPlaying;
+                if (this.wasPlaying) this.multiCameraPlayer.pauseAll();
+            });
+        }
+        
+        if (this.clipEndHandle) {
+            this.clipEndHandle.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                this.isDraggingClipEnd = true;
+                this.wasPlaying = this.multiCameraPlayer.isPlaying;
+                if (this.wasPlaying) this.multiCameraPlayer.pauseAll();
+            });
+        }
+        
+        // Clip button
+        if (this.clipBtn) {
+            this.clipBtn.addEventListener('click', () => {
+                if (!this.clipModeActive) {
+                    // Enter clip mode
+                    this.toggleClipMode();
+                } else {
+                    // Exit clip mode
+                    this.toggleClipMode();
+                }
+            });
+        }
+        
+        // Confirm clip button
+        if (this.confirmClipBtn) {
+            this.confirmClipBtn.addEventListener('click', () => {
+                this.viewer.showClipModal();
             });
         }
 
@@ -574,6 +664,59 @@ class ModernVideoControls {
             }
         });
     }
+    
+    toggleClipMode() {
+        this.clipModeActive = !this.clipModeActive;
+        
+        if (this.clipModeActive) {
+            // Enter clip mode - initialize selection
+            const currentTime = this.continuousPlayer.getCurrentTime();
+            const duration = this.totalDuration;
+            
+            // Set default selection: current time ± 30 seconds (or bounds)
+            this.clipStartTime = Math.max(0, currentTime - 30);
+            this.clipEndTime = Math.min(duration, currentTime + 30);
+            
+            this.updateClipSelection();
+            this.clipSelection.classList.add('active');
+            this.clipStartHandle.classList.add('active');
+            this.clipEndHandle.classList.add('active');
+            this.clipBtn.style.color = '#007bff';
+            
+            // Show confirm button, hide clip button
+            if (this.confirmClipBtn) {
+                this.confirmClipBtn.style.display = 'block';
+            }
+        } else {
+            // Exit clip mode
+            this.clipSelection.classList.remove('active');
+            this.clipStartHandle.classList.remove('active');
+            this.clipEndHandle.classList.remove('active');
+            this.clipBtn.style.color = '';
+            this.clipStartTime = null;
+            this.clipEndTime = null;
+            
+            // Hide confirm button
+            if (this.confirmClipBtn) {
+                this.confirmClipBtn.style.display = 'none';
+            }
+        }
+    }
+    
+    updateClipSelection() {
+        if (!this.clipStartTime && this.clipStartTime !== 0) return;
+        if (!this.clipEndTime) return;
+        
+        const startPercent = (this.clipStartTime / this.totalDuration) * 100;
+        const endPercent = (this.clipEndTime / this.totalDuration) * 100;
+        const widthPercent = endPercent - startPercent;
+        
+        this.clipSelection.style.left = `${startPercent}%`;
+        this.clipSelection.style.width = `${widthPercent}%`;
+        
+        this.clipStartHandle.style.left = `${startPercent}%`;
+        this.clipEndHandle.style.left = `${endPercent}%`;
+    }
 
     setTotalDuration(duration) {
         this.totalDuration = duration || 0;
@@ -596,6 +739,34 @@ class ModernVideoControls {
     }
 
     onDrag(e) {
+        if (this.isDraggingClipStart) {
+            e.preventDefault();
+            const rect = this.progressContainer.getBoundingClientRect();
+            const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            const newTime = pos * this.totalDuration;
+            
+            // Don't let start go past end
+            if (newTime < this.clipEndTime) {
+                this.clipStartTime = newTime;
+                this.updateClipSelection();
+            }
+            return;
+        }
+        
+        if (this.isDraggingClipEnd) {
+            e.preventDefault();
+            const rect = this.progressContainer.getBoundingClientRect();
+            const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            const newTime = pos * this.totalDuration;
+            
+            // Don't let end go before start
+            if (newTime > this.clipStartTime) {
+                this.clipEndTime = newTime;
+                this.updateClipSelection();
+            }
+            return;
+        }
+        
         if (!this.isDragging) return;
         e.preventDefault();
         const rect = this.progressContainer.getBoundingClientRect();
@@ -609,6 +780,15 @@ class ModernVideoControls {
     }
 
     async stopDrag(e) {
+        if (this.isDraggingClipStart || this.isDraggingClipEnd) {
+            this.isDraggingClipStart = false;
+            this.isDraggingClipEnd = false;
+            if (this.wasPlaying) {
+                await this.multiCameraPlayer.playAll();
+            }
+            return;
+        }
+        
         if (!this.isDragging) return;
         this.isDragging = false;
 
@@ -740,6 +920,17 @@ class ModernVideoControls {
         if (downloadBtn) {
             downloadBtn.disabled = playing || !this.viewer.currentEvent;
         }
+        
+        // Enable/disable clip button
+        if (this.clipBtn) {
+            this.clipBtn.disabled = !this.viewer.currentEvent;
+            this.clipBtn.title = i18n[this.viewer.currentLanguage].clipVideo;
+        }
+        
+        // Update confirm clip button title
+        if (this.confirmClipBtn) {
+            this.confirmClipBtn.title = i18n[this.viewer.currentLanguage].confirmClip;
+        }
     }
 
     updateTimeDisplay() {
@@ -809,6 +1000,453 @@ class ModernVideoControls {
     }
 }
 
+// Video Clip Processor using Canvas API
+class VideoClipProcessor {
+    constructor() {
+        this.canvas = null;
+        this.ctx = null;
+        this.mediaRecorder = null;
+    }
+    
+    initCanvas(width, height) {
+        if (!this.canvas) {
+            this.canvas = document.createElement('canvas');
+            this.ctx = this.canvas.getContext('2d');
+        }
+        this.canvas.width = width;
+        this.canvas.height = height;
+    }
+    
+    async processClip(segments, cameras, startTime, endTime, addTimestamp, mergeGrid, eventStartTime, progressCallback) {
+        try {
+            // Calculate which segments are needed
+            const clipSegments = this.getSegmentsForTimeRange(segments, startTime, endTime);
+            
+            if (clipSegments.length === 0) {
+                throw new Error('未找到有效的视频片段');
+            }
+            
+            // If merging as grid, process all cameras together
+            if (mergeGrid && cameras.length > 1) {
+                progressCallback?.('合成四宫格视频...');
+                const gridBlob = await this.createGridVideoFromSegments(
+                    clipSegments,
+                    cameras,
+                    startTime,
+                    endTime,
+                    addTimestamp,
+                    eventStartTime,
+                    progressCallback
+                );
+                return [{ camera: 'grid', blob: gridBlob }];
+            }
+            
+            // Otherwise, process each camera individually
+            const results = [];
+            
+            for (const camera of cameras) {
+                progressCallback?.(`处理 ${camera} 摄像头...`);
+                
+                const videoBlob = await this.processVideoWithTimestamp(
+                    clipSegments, 
+                    camera, 
+                    startTime, 
+                    endTime, 
+                    addTimestamp,
+                    eventStartTime,
+                    progressCallback
+                );
+                
+                results.push({ camera, blob: videoBlob });
+            }
+            
+            return results;
+            
+        } catch (error) {
+            console.error('Video processing error:', error);
+            throw error;
+        }
+    }
+    
+    getSegmentsForTimeRange(allSegments, startTime, endTime) {
+        const result = [];
+        let accumulatedTime = 0;
+        
+        for (let i = 0; i < allSegments.length; i++) {
+            const segment = allSegments[i];
+            const segmentDuration = segment.duration || 60; // Default 60s
+            const segmentStart = accumulatedTime;
+            const segmentEnd = accumulatedTime + segmentDuration;
+            
+            // Check if this segment overlaps with our clip range
+            if (segmentEnd > startTime && segmentStart < endTime) {
+                const clipStart = Math.max(0, startTime - segmentStart);
+                const clipEnd = Math.min(segmentDuration, endTime - segmentStart);
+                
+                result.push({
+                    segment,
+                    segmentIndex: i,
+                    clipStart,
+                    clipEnd,
+                    clipDuration: clipEnd - clipStart,
+                    timestamp: segment.timestamp,
+                    absoluteStart: segmentStart
+                });
+            }
+            
+            accumulatedTime += segmentDuration;
+            
+            if (accumulatedTime >= endTime) break;
+        }
+        
+        return result;
+    }
+    
+    async processVideoWithTimestamp(clipSegments, camera, totalStartTime, totalEndTime, addTimestamp, eventStartTime, progressCallback) {
+        if (clipSegments.length === 0) {
+            throw new Error('没有可用的视频片段');
+        }
+        
+        progressCallback?.(`处理 ${camera} 摄像头 (${clipSegments.length} 个片段)...`);
+        
+        // Prepare all video elements for all segments
+        const videoElements = [];
+        let canvasWidth = 0;
+        let canvasHeight = 0;
+        
+        for (const clipSegment of clipSegments) {
+            const videoFile = clipSegment.segment.files[camera];
+            
+            if (!videoFile) {
+                throw new Error(`${camera} 摄像头在某个片段中没有可用的视频文件`);
+            }
+            
+            const video = document.createElement('video');
+            video.muted = true;
+            video.src = URL.createObjectURL(videoFile);
+            
+            await new Promise((resolve, reject) => {
+                video.onloadedmetadata = resolve;
+                video.onerror = reject;
+            });
+            
+            if (canvasWidth === 0) {
+                canvasWidth = video.videoWidth;
+                canvasHeight = video.videoHeight;
+            }
+            
+            videoElements.push({
+                video,
+                clipSegment
+            });
+        }
+        
+        // Initialize canvas
+        this.initCanvas(canvasWidth, canvasHeight);
+        
+        // Setup MediaRecorder
+        const stream = this.canvas.captureStream(30); // 30 fps
+        const chunks = [];
+        
+        this.mediaRecorder = new MediaRecorder(stream, {
+            mimeType: 'video/webm;codecs=vp9',
+            videoBitsPerSecond: 5000000 // 5 Mbps
+        });
+        
+        this.mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) {
+                chunks.push(e.data);
+            }
+        };
+        
+        const recordingComplete = new Promise((resolve) => {
+            this.mediaRecorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                resolve(blob);
+            };
+        });
+        
+        // Start recording
+        this.mediaRecorder.start();
+        
+        // Process all segments sequentially
+        for (let i = 0; i < videoElements.length; i++) {
+            const { video, clipSegment } = videoElements[i];
+            
+            progressCallback?.(`处理 ${camera} 片段 ${i + 1}/${videoElements.length}...`);
+            
+            // Calculate timestamp for this segment
+            const segmentTime = this.parseTimestamp(clipSegment.timestamp);
+            const segmentStartTimestamp = new Date(segmentTime.getTime() + clipSegment.clipStart * 1000);
+            
+            // Seek to clip start position
+            video.currentTime = clipSegment.clipStart;
+            await video.play();
+            
+            // Process this segment
+            await new Promise((resolve) => {
+                const drawFrame = () => {
+                    if (video.paused || video.ended) {
+                        resolve();
+                        return;
+                    }
+                    
+                    // Draw video frame
+                    this.ctx.drawImage(video, 0, 0, this.canvas.width, this.canvas.height);
+                    
+                    // Draw timestamp if enabled
+                    if (addTimestamp) {
+                        const currentTime = new Date(segmentStartTimestamp.getTime() + (video.currentTime - clipSegment.clipStart) * 1000);
+                        const timeString = currentTime.toLocaleString('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false
+                        }).replace(/\//g, '-');
+                        
+                        this.drawTimestamp(timeString);
+                    }
+                    
+                    // Check if we've reached the end of this clip segment
+                    if (video.currentTime >= clipSegment.clipStart + clipSegment.clipDuration - 0.1) {
+                        video.pause();
+                        resolve();
+                    } else {
+                        requestAnimationFrame(drawFrame);
+                    }
+                };
+                
+                requestAnimationFrame(drawFrame);
+            });
+        }
+        
+        // Stop recording
+        this.mediaRecorder.stop();
+        
+        const resultBlob = await recordingComplete;
+        
+        // Clean up
+        for (const { video } of videoElements) {
+            URL.revokeObjectURL(video.src);
+        }
+        
+        return resultBlob;
+    }
+    
+    async createGridVideoFromSegments(clipSegments, cameras, totalStartTime, totalEndTime, addTimestamp, eventStartTime, progressCallback) {
+        progressCallback?.(`准备四宫格视频 (${clipSegments.length} 个片段)...`);
+        
+        // Prepare video elements for all segments and all cameras
+        const allSegmentVideos = [];
+        let canvasWidth = 0;
+        let canvasHeight = 0;
+        
+        for (const clipSegment of clipSegments) {
+            const segmentVideos = {};
+            
+            for (const camera of cameras) {
+                const videoFile = clipSegment.segment.files[camera];
+                if (!videoFile) continue;
+                
+                const video = document.createElement('video');
+                video.muted = true;
+                video.src = URL.createObjectURL(videoFile);
+                
+                await new Promise((resolve, reject) => {
+                    video.onloadedmetadata = resolve;
+                    video.onerror = reject;
+                });
+                
+                if (canvasWidth === 0) {
+                    canvasWidth = video.videoWidth;
+                    canvasHeight = video.videoHeight;
+                }
+                
+                segmentVideos[camera] = video;
+            }
+            
+            if (Object.keys(segmentVideos).length === 0) {
+                throw new Error('某个片段没有可用的视频文件');
+            }
+            
+            allSegmentVideos.push({
+                videos: segmentVideos,
+                clipSegment
+            });
+        }
+        
+        const videoCount = cameras.length;
+        
+        // Calculate grid layout
+        let gridCols, gridRows;
+        if (videoCount === 1) {
+            gridCols = 1; gridRows = 1;
+        } else if (videoCount === 2) {
+            gridCols = 2; gridRows = 1;
+        } else {
+            gridCols = 2; gridRows = 2;
+        }
+        
+        const cellWidth = canvasWidth;
+        const cellHeight = canvasHeight;
+        const gridCanvasWidth = cellWidth * gridCols;
+        const gridCanvasHeight = cellHeight * gridRows;
+        
+        // Initialize canvas
+        this.initCanvas(gridCanvasWidth, gridCanvasHeight);
+        
+        // Setup MediaRecorder
+        const stream = this.canvas.captureStream(30);
+        const chunks = [];
+        
+        this.mediaRecorder = new MediaRecorder(stream, {
+            mimeType: 'video/webm;codecs=vp9',
+            videoBitsPerSecond: 8000000 // 8 Mbps for grid
+        });
+        
+        this.mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) {
+                chunks.push(e.data);
+            }
+        };
+        
+        const recordingComplete = new Promise((resolve) => {
+            this.mediaRecorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                resolve(blob);
+            };
+        });
+        
+        // Start recording
+        this.mediaRecorder.start();
+        
+        // Position mapping for grid
+        const cameraPositions = {
+            'front': { x: 0, y: 0 },
+            'back': { x: 1, y: 0 },
+            'left': { x: 0, y: 1 },
+            'right': { x: 1, y: 1 }
+        };
+        
+        // Process all segments sequentially
+        for (let i = 0; i < allSegmentVideos.length; i++) {
+            const { videos, clipSegment } = allSegmentVideos[i];
+            
+            progressCallback?.(`处理四宫格片段 ${i + 1}/${allSegmentVideos.length}...`);
+            
+            // Calculate timestamp for this segment
+            const segmentTime = this.parseTimestamp(clipSegment.timestamp);
+            const segmentStartTimestamp = new Date(segmentTime.getTime() + clipSegment.clipStart * 1000);
+            
+            // Start all videos for this segment
+            for (const video of Object.values(videos)) {
+                video.currentTime = clipSegment.clipStart;
+                await video.play();
+            }
+            
+            // Process this segment
+            await new Promise((resolve) => {
+                const drawFrame = () => {
+                    const firstVideo = Object.values(videos)[0];
+                    
+                    if (firstVideo.paused || firstVideo.ended) {
+                        resolve();
+                        return;
+                    }
+                    
+                    // Clear canvas
+                    this.ctx.fillStyle = '#000';
+                    this.ctx.fillRect(0, 0, gridCanvasWidth, gridCanvasHeight);
+                    
+                    // Draw each camera view
+                    for (const [camera, video] of Object.entries(videos)) {
+                        const pos = cameraPositions[camera] || { x: 0, y: 0 };
+                        const x = pos.x * cellWidth;
+                        const y = pos.y * cellHeight;
+                        
+                        this.ctx.drawImage(video, x, y, cellWidth, cellHeight);
+                        
+                        // Draw camera label (doubled size)
+                        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                        this.ctx.fillRect(x + 10, y + 10, 120, 60);
+                        this.ctx.fillStyle = '#fff';
+                        this.ctx.font = 'bold 36px Arial';
+                        this.ctx.fillText(camera.toUpperCase(), x + 20, y + 54);
+                    }
+                    
+                    // Draw timestamp if needed
+                    if (addTimestamp) {
+                        const currentTime = new Date(segmentStartTimestamp.getTime() + (firstVideo.currentTime - clipSegment.clipStart) * 1000);
+                        const timeString = currentTime.toLocaleString('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false
+                        }).replace(/\//g, '-');
+                        
+                        // Draw at bottom center (doubled size)
+                        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                        this.ctx.fillRect(gridCanvasWidth / 2 - 300, gridCanvasHeight - 90, 600, 80);
+                        this.ctx.fillStyle = '#fff';
+                        this.ctx.font = 'bold 48px Arial';
+                        this.ctx.textAlign = 'center';
+                        this.ctx.fillText(timeString, gridCanvasWidth / 2, gridCanvasHeight - 35);
+                        this.ctx.textAlign = 'left';
+                    }
+                    
+                    // Check if we've reached the end of this clip segment
+                    if (firstVideo.currentTime >= clipSegment.clipStart + clipSegment.clipDuration - 0.1) {
+                        for (const video of Object.values(videos)) {
+                            video.pause();
+                        }
+                        resolve();
+                    } else {
+                        requestAnimationFrame(drawFrame);
+                    }
+                };
+                
+                requestAnimationFrame(drawFrame);
+            });
+        }
+        
+        // Stop recording
+        this.mediaRecorder.stop();
+        
+        const resultBlob = await recordingComplete;
+        
+        // Clean up
+        for (const { videos } of allSegmentVideos) {
+            for (const video of Object.values(videos)) {
+                URL.revokeObjectURL(video.src);
+            }
+        }
+        
+        return resultBlob;
+    }
+    
+    drawTimestamp(timeString) {
+        // Draw background
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(10, 10, 380, 50);
+        
+        // Draw text
+        this.ctx.fillStyle = '#fff';
+        this.ctx.font = 'bold 28px Arial';
+        this.ctx.fillText(timeString, 20, 45);
+    }
+    
+    parseTimestamp(timestamp) {
+        const [datePart, timePart] = timestamp.split('_');
+        return new Date(`${datePart}T${timePart.replace(/-/g, ':')}`);
+    }
+}
+
 class TeslaCamViewer {
     constructor() {
         this.allFiles = [];
@@ -817,6 +1455,7 @@ class TeslaCamViewer {
         this.currentLanguage = 'zh';
         this.currentMapCoordinates = null;
         this.flatpickrInstance = null;
+        this.videoClipProcessor = new VideoClipProcessor();
         this.dom = {
             folderInput: document.getElementById('folderInput'),
             selectFolderBtn: document.getElementById('selectFolderBtn'),
@@ -837,6 +1476,24 @@ class TeslaCamViewer {
             revealFileBtn: document.getElementById('revealFileBtn'),
             downloadFileBtn: document.getElementById('downloadFileBtn'),
             headerLocationDisplay: document.getElementById('headerLocationDisplay'),
+            // Clip modal elements
+            clipModal: document.getElementById('clipModal'),
+            clipModalTitle: document.getElementById('clipModalTitle'),
+            clipDuration: document.getElementById('clipDuration'),
+            clipStartTime: document.getElementById('clipStartTime'),
+            clipEndTime: document.getElementById('clipEndTime'),
+            exportFront: document.getElementById('exportFront'),
+            exportBack: document.getElementById('exportBack'),
+            exportLeft: document.getElementById('exportLeft'),
+            exportRight: document.getElementById('exportRight'),
+            addTimestamp: document.getElementById('addTimestamp'),
+            mergeVideos: document.getElementById('mergeVideos'),
+            clipProgress: document.getElementById('clipProgress'),
+            clipProgressBar: document.getElementById('clipProgressBar'),
+            clipProgressText: document.getElementById('clipProgressText'),
+            startClipBtn: document.getElementById('startClipBtn'),
+            cancelClipBtn: document.getElementById('cancelClipBtn'),
+            closeClipModalBtn: document.getElementById('closeClipModalBtn'),
         };
         this.videoListComponent = new VideoListComponent('fileList', (eventId) => this.playEvent(eventId), this);
         this.multiCameraPlayer = new MultiCameraPlayer();
@@ -886,6 +1543,16 @@ class TeslaCamViewer {
         this.dom.googleMapBtn.addEventListener('click', () => this.openMap('google'));
         this.dom.revealFileBtn.addEventListener('click', () => this.revealCurrentFilePath());
         this.dom.downloadFileBtn.addEventListener('click', () => this.downloadCurrentFile());
+        
+        // Clip modal listeners
+        this.dom.closeClipModalBtn.addEventListener('click', () => this.hideClipModal());
+        this.dom.cancelClipBtn.addEventListener('click', () => this.hideClipModal());
+        this.dom.startClipBtn.addEventListener('click', () => this.startClipExport());
+        this.dom.clipModal.addEventListener('click', (e) => {
+            if (e.target === this.dom.clipModal) {
+                this.hideClipModal();
+            }
+        });
     }
 
     initializeFlatpickr() {
@@ -1216,6 +1883,190 @@ class TeslaCamViewer {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+    }
+    
+    showClipModal() {
+        if (!this.videoControls.clipModeActive || 
+            this.videoControls.clipStartTime === null || 
+            this.videoControls.clipStartTime === undefined || 
+            this.videoControls.clipEndTime === null || 
+            this.videoControls.clipEndTime === undefined) {
+            alert(i18n[this.currentLanguage].selectClipRange);
+            return;
+        }
+        
+        const translations = i18n[this.currentLanguage];
+        
+        // Update modal title and labels
+        this.dom.clipModalTitle.textContent = translations.exportClip;
+        
+        // Update labels
+        document.getElementById('selectCamerasLabel').textContent = translations.selectCameras;
+        document.getElementById('addTimestampLabel').textContent = translations.addTimestamp;
+        document.getElementById('mergeVideosLabel').textContent = translations.mergeVideos;
+        this.dom.startClipBtn.textContent = translations.startExport;
+        this.dom.cancelClipBtn.textContent = translations.cancel;
+        
+        // Update camera labels
+        document.querySelectorAll('[data-i18n="front"]').forEach(el => el.textContent = translations.front);
+        document.querySelectorAll('[data-i18n="back"]').forEach(el => el.textContent = translations.back);
+        document.querySelectorAll('[data-i18n="left"]').forEach(el => el.textContent = translations.left);
+        document.querySelectorAll('[data-i18n="right"]').forEach(el => el.textContent = translations.right);
+        
+        // Update clip info labels
+        const clipDurationLabel = this.dom.clipDuration.previousElementSibling;
+        const clipStartTimeLabel = this.dom.clipStartTime.previousElementSibling;
+        const clipEndTimeLabel = this.dom.clipEndTime.previousElementSibling;
+        if (clipDurationLabel) clipDurationLabel.textContent = translations.clipDuration;
+        if (clipStartTimeLabel) clipStartTimeLabel.textContent = translations.clipStartTime;
+        if (clipEndTimeLabel) clipEndTimeLabel.textContent = translations.clipEndTime;
+        
+        // Calculate duration
+        const duration = this.videoControls.clipEndTime - this.videoControls.clipStartTime;
+        this.dom.clipDuration.textContent = this.videoControls.formatTime(duration);
+        
+        // Calculate actual timestamps
+        const event = this.continuousPlayer.currentEvent;
+        if (event && event.startTime) {
+            const startDate = this.parseTimestamp(event.startTime);
+            const startTime = new Date(startDate.getTime() + this.videoControls.clipStartTime * 1000);
+            const endTime = new Date(startDate.getTime() + this.videoControls.clipEndTime * 1000);
+            
+            const locale = this.currentLanguage === 'zh' ? 'zh-CN' : 'en-CA';
+            this.dom.clipStartTime.textContent = startTime.toLocaleString(locale, {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            this.dom.clipEndTime.textContent = endTime.toLocaleString(locale, {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+        }
+        
+        // Reset checkboxes
+        this.dom.exportFront.checked = true;
+        this.dom.exportBack.checked = false;
+        this.dom.exportLeft.checked = false;
+        this.dom.exportRight.checked = false;
+        this.dom.addTimestamp.checked = true;
+        this.dom.mergeVideos.checked = false;
+        
+        // Hide progress
+        this.dom.clipProgress.style.display = 'none';
+        this.dom.startClipBtn.disabled = false;
+        
+        // Show modal
+        this.dom.clipModal.style.display = 'flex';
+        setTimeout(() => this.dom.clipModal.classList.add('show'), 10);
+    }
+    
+    hideClipModal() {
+        this.dom.clipModal.classList.remove('show');
+        setTimeout(() => {
+            this.dom.clipModal.style.display = 'none';
+        }, 300);
+    }
+    
+    parseTimestamp(timestamp) {
+        const [datePart, timePart] = timestamp.split('_');
+        return new Date(`${datePart}T${timePart.replace(/-/g, ':')}`);
+    }
+    
+    async startClipExport() {
+        const translations = i18n[this.currentLanguage];
+        
+        // Get selected cameras
+        const cameras = [];
+        if (this.dom.exportFront.checked) cameras.push('front');
+        if (this.dom.exportBack.checked) cameras.push('back');
+        if (this.dom.exportLeft.checked) cameras.push('left');
+        if (this.dom.exportRight.checked) cameras.push('right');
+        
+        if (cameras.length === 0) {
+            alert(translations.selectAtLeastOneCamera);
+            return;
+        }
+        
+        const addTimestamp = this.dom.addTimestamp.checked;
+        const mergeGrid = this.dom.mergeVideos.checked && cameras.length > 1;
+        
+        // Disable button and show progress
+        this.dom.startClipBtn.disabled = true;
+        this.dom.cancelClipBtn.disabled = true;
+        this.dom.clipProgress.style.display = 'block';
+        this.dom.clipProgressBar.style.width = '0%';
+        this.dom.clipProgressText.textContent = translations.preparing;
+        
+        try {
+            const event = this.continuousPlayer.currentEvent;
+            
+            // Add duration to segments
+            const segmentsWithDuration = event.segments.map((seg, idx) => {
+                return {
+                    ...seg,
+                    duration: event.segmentDurations[idx] || 60
+                };
+            });
+            
+            const results = await this.videoClipProcessor.processClip(
+                segmentsWithDuration,
+                cameras,
+                this.videoControls.clipStartTime,
+                this.videoControls.clipEndTime,
+                addTimestamp,
+                mergeGrid,
+                event.startTime,
+                (msg) => {
+                    this.dom.clipProgressText.textContent = msg;
+                    // Simulate progress
+                    const currentWidth = parseFloat(this.dom.clipProgressBar.style.width) || 0;
+                    this.dom.clipProgressBar.style.width = Math.min(90, currentWidth + 10) + '%';
+                }
+            );
+            
+            // Download results
+            this.dom.clipProgressText.textContent = translations.exporting;
+            this.dom.clipProgressBar.style.width = '100%';
+            
+            for (const result of results) {
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+                const filename = `TeslaCam_${result.camera}_${timestamp}.mp4`;
+                
+                const url = URL.createObjectURL(result.blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+            
+            this.dom.clipProgressText.textContent = translations.complete;
+            
+            // Close modal after a delay
+            setTimeout(() => {
+                this.hideClipModal();
+                this.videoControls.toggleClipMode(); // Exit clip mode
+            }, 2000);
+            
+        } catch (error) {
+            console.error('Clip export error:', error);
+            alert(translations.exportFailed + error.message);
+            this.dom.clipProgress.style.display = 'none';
+            this.dom.startClipBtn.disabled = false;
+            this.dom.cancelClipBtn.disabled = false;
         }
     }
 

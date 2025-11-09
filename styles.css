@@ -246,8 +246,8 @@ body {
     display: flex;
     align-items: center;
     padding: 1rem;
-    border-bottom: 1px solid var(--border-primary);
-    background-color: var(--bg-secondary);
+    border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
     transition: background-color 0.3s, border-color 0.3s;
     gap: 10px;
 }
@@ -258,6 +258,11 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
 }
 
 .filters {
@@ -470,18 +475,20 @@ body.dark-theme #eventFilter {
     width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-on-button);
-    background-color: var(--bg-button);
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
     border-radius: 8px;
     cursor: pointer;
     text-align: center;
-    transition: background-color 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 #selectFolderBtn:hover {
-    background-color: var(--bg-button-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 /* Player Area */
@@ -640,6 +647,80 @@ body.dark-theme #eventFilter {
     background-color: var(--text-on-dark);
     border-radius: 2px;
     width: 0;
+    z-index: 1;
+}
+
+.clip-selection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: rgba(0, 123, 255, 0.3);
+    border-left: 2px solid #007bff;
+    border-right: 2px solid #007bff;
+    pointer-events: none;
+    display: none;
+    z-index: 2;
+}
+
+.clip-selection.active {
+    display: block;
+}
+
+.clip-handle {
+    width: 16px;
+    height: 24px;
+    background-color: #007bff;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    cursor: ew-resize;
+    border-radius: 3px;
+    display: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.clip-handle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 12px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.clip-handle.active {
+    display: block;
+}
+
+.clip-handle:hover {
+    background-color: #0056b3;
+}
+
+.clip-btn {
+    color: var(--text-on-dark);
+}
+
+.clip-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.confirm-clip-btn {
+    color: #28a745;
+    animation: pulse-confirm 2s infinite;
+}
+
+.confirm-clip-btn:hover {
+    color: #218838;
+}
+
+@keyframes pulse-confirm {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
 }
 
 .progress-handle {
@@ -952,6 +1033,217 @@ body.sidebar-collapsed .open-sidebar-btn {
     color: var(--text-secondary);
     cursor: pointer;
     line-height: 1;
+}
+
+/* Clip Modal Styles */
+.clip-modal {
+    max-width: 560px;
+    width: 90%;
+    padding: 32px;
+}
+
+.clip-modal h4 {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.clip-info {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.clip-info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    padding: 8px 0;
+}
+
+.clip-info-item:last-child {
+    margin-bottom: 0;
+}
+
+.clip-info-label {
+    color: var(--text-secondary);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.clip-info-label::before {
+    content: '•';
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+#clipDuration {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+#clipStartTime,
+#clipEndTime {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-family: 'Courier New', monospace;
+}
+
+.clip-options {
+    margin-bottom: 24px;
+}
+
+.clip-option-group {
+    margin-bottom: 18px;
+    padding: 16px;
+    background-color: var(--bg-tertiary);
+    border-radius: 10px;
+    border: 1px solid var(--border-primary);
+    transition: all 0.3s ease;
+}
+
+.clip-option-group:hover {
+    border-color: rgba(102, 126, 234, 0.4);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.clip-option-group > label:first-child {
+    display: block;
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+}
+
+.camera-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 12px;
+}
+
+.camera-checkboxes label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+    font-weight: 500;
+    padding: 8px 12px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.camera-checkboxes label:hover {
+    background-color: var(--bg-primary);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.camera-checkboxes input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: #667eea;
+}
+
+.clip-option-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #667eea;
+    cursor: pointer;
+}
+
+.clip-progress {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border-radius: 12px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: var(--bg-tertiary);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    width: 0;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+.progress-text {
+    text-align: center;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.modal-buttons {
+    gap: 12px;
+}
+
+.modal-buttons button {
+    flex: 1;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.modal-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+#startClipBtn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+#startClipBtn:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #6a3f91 100%);
+}
+
+#startClipBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#cancelClipBtn {
+    background-color: #6c757d;
+    border: none;
+}
+
+#cancelClipBtn:hover {
+    background-color: #5a6268;
+}
+
+#cancelClipBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 /* City Link Style */

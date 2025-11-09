@@ -1,24 +1,49 @@
 # TeslaCam Player
 
+English | [简体中文](README_CN.md)
+
 A modern, browser-based viewer for your TeslaCam footage. Play all four camera angles (Front, Back, Left, Right) simultaneously with a sleek and intuitive interface.
 
-![Screenshot](screenshot.png)
+![Screenshot](./imgs/home.png)
 
 ## ✨ Features
 
-*   🎥 **Quad-Camera Sync Playback**: View footage from all four cameras at once, perfectly synchronized.
-*   🎨 **Dual-Theme Interface**: Switch between a light and dark mode. Automatically detects your system's preference!
-*   🌐 **Bilingual Support (EN/ZH)**: Interface in English or Chinese. Automatically detects your browser's language.
-*   ⏩ **Playback Speed Control**: Watch footage at 0.5x, 1.0x, 1.5x, or 2.0x speed.
-*   ↔️ **Collapsible Sidebar**: Maximize video space by hiding the event list.
-*   🔍 **Intuitive Filtering**: Easily filter recordings by date and event type (Recent, Saved, Sentry).
-*   🔄 **Interactive PiP**: Click on any Picture-in-Picture view to make it the main video.
-*   🕰️ **Real-Time Clock**: See the actual date and time of the recording as you play.
-*   ⌨️ **Keyboard Shortcuts**: Control playback with your keyboard (`Space` for play/pause).
-*   🗺️ **Map Integration**: Click on the event's city to view the location on Gaode Map or Google Maps.
-*   💾 **Clip Download**: Download the currently playing video clip directly from the player.
-*   🔒 **100% Private**: All processing is done locally in your browser. Your files are never uploaded.
-*   😊 **Emoji-Enhanced UI**: A touch of fun in the user interface.
+### 🎥 Video Playback
+*   **Quad-Camera Sync Playback**: View footage from all four cameras at once, perfectly synchronized.
+*   **Interactive PiP**: Click on any Picture-in-Picture view to make it the main video.
+*   **Playback Speed Control**: Watch footage at 0.5x, 1.0x, 1.5x, or 2.0x speed.
+*   **Real-Time Clock**: See the actual date and time of the recording as you play.
+*   **Keyboard Shortcuts**: Control playback with your keyboard (`Space` for play/pause).
+
+### ✂️ Advanced Video Editing
+*   **Visual Clip Selection**: Drag blue handles on the progress bar to select precise start and end points.
+*   **Multi-Segment Processing**: Automatically handles clips spanning multiple 1-minute video files.
+*   **Confirm Button**: Separate clip selection from export action with a dedicated confirm button (✓) and visual feedback.
+*   **Flexible Export Options**:
+    - Select specific cameras to export (Front, Back, Left, Right, or any combination)
+    - Add real-time timestamp watermarks showing exact recording time
+    - Merge all four camera views into a single 2x2 grid video
+    - Enhanced text visibility with double-sized fonts in grid mode (36px labels, 48px timestamps)
+*   **Smart Processing**: All timestamps remain accurate across multi-segment clips with automatic time calculation.
+
+### 🎨 Modern User Interface
+*   **Dual-Theme Interface**: Switch between light and dark modes. Automatically detects your system's preference!
+*   **Bilingual Support (EN/ZH)**: Complete interface translation in English and Chinese. Auto-detects browser language.
+*   **Beautiful Export Modal**: Purple gradient theme with modern card design, smooth animations, and hover effects.
+*   **Collapsible Sidebar**: Maximize video space by hiding the event list.
+*   **Intuitive Icons**: Scissors icon (✂️) for clipping, checkmark (✓) for confirmation.
+*   **Progress Visualization**: Gradient progress bars with glowing effects during export.
+
+### 🔍 Smart Features
+*   **Intuitive Filtering**: Easily filter recordings by date and event type (Recent, Saved, Sentry).
+*   **Map Integration**: Click on the event's city to view the location on Gaode Map or Google Maps.
+*   **Clip Download**: Download the currently playing video clip directly from the player.
+*   **Zero-Time Support**: Correctly handles clips starting from the beginning (0:00).
+
+### 🔒 Privacy & Performance
+*   **100% Private**: All processing is done locally in your browser using Canvas API and MediaRecorder. Your files are never uploaded.
+*   **Pure Vanilla JavaScript**: No frameworks, optimized for performance.
+*   **Client-Side Rendering**: Real-time video processing with timestamp overlay directly in browser.
 
 ## 🚀 How to Use
 
@@ -56,13 +81,40 @@ If you have Docker installed, you can easily run the application in a container.
 1.  Click the "📁 Select Folder" button.
 2.  In the file selection dialog, navigate to and select the root `TeslaCam` folder from your USB drive.
 
-**3. Browse and Play**
+**4. Browse and Play**
+
+![Video Playback](imgs/play.png)
 
 *   Your recordings will appear in the sidebar, sorted by date.
 *   Use the filters to find specific events.
 *   Click on any event to start playing.
 *   Click on a city name (if available) to open the location on Gaode Map or Google Maps.
 *   When paused, click the 💾 icon in the header to download the current video file.
+
+**5. Clip and Export Videos**
+
+![Clip Selection](imgs/clip.png)
+
+1.  Click the **✂️ (scissors)** icon in the video controls to enter clip mode.
+2.  **Drag the blue handles** on the progress bar to select the start and end points of your desired clip.
+3.  Click the **✓ (checkmark)** icon to confirm your selection and open the export dialog.
+
+![Export Dialog](imgs/export.png)
+
+4.  **Configure export options**:
+    - **Select Cameras**: Choose which camera angles to export (Front, Back, Left, Right, or any combination)
+    - **Add Timestamp Watermark**: Overlay real-time timestamp showing the exact recording time
+    - **Merge as Grid Video**: Combine all selected cameras into a single 2x2 grid view with enhanced text visibility
+5.  Click **"Start Export"** to process and download your clip(s).
+
+**Key Features:**
+- Automatically handles clips spanning multiple 1-minute video segments
+- Maintains accurate timestamps across all segments
+- Grid videos feature double-sized text (36px camera labels, 48px timestamps) for better readability
+- All processing is done locally in your browser using Canvas API and MediaRecorder
+- Exported videos are in WebM format with H.264 codec
+
+*Note: For clips longer than 1 minute, the application automatically processes all required video segments and concatenates them seamlessly.*
 
 ## ⌨️ Keyboard Shortcuts
 
@@ -81,89 +133,3 @@ This tool is built with privacy as a top priority. **All file processing happens
 ## 📄 License
 
 MIT License
-
----
-
-# TeslaCam 播放器
-
-一个现代化的、基于浏览器的 TeslaCam 录像查看器。通过一个清爽直观的界面，同步播放所有四个摄像头（前、后、左、右）的画面。
-
-![截图](screenshot.png)
-
-## ✨ 功能特性
-
-*   🎥 **四镜头同步播放**: 完美同步播放所有四个摄像头的画面。
-*   🎨 **双主题界面**: 可在浅色和深色模式之间切换，并能自动匹配您的系统偏好。
-*   🌐 **双语支持 (中/英)**: 提供中文和英文界面，并能自动检测您的浏览器语言。
-*   ⏩ **播放速度控制**: 以 0.5x、1.0x、1.5x 或 2.0x 的速度观看录像。
-*   ↔️ **可折叠侧边栏**: 隐藏事件列表，最大化视频观看空间。
-*   🔍 **智能筛选**: 按日期和事件类型（最近、已保存、哨兵）轻松筛选录像。
-*   🔄 **交互式画中画**: 点击任何画中画视图，即可将其切换为主视频。
-*   🕰️ **实时时钟**: 播放时可看到录像对应的真实日期和时间。
-*   ⌨️ **键盘快捷键**: 使用键盘控制播放（`空格键` 播放/暂停）。
-*   🗺️ **地图集成**: 点击事件的城市名称，即可通过高德地图或谷歌地图查看具体位置。
-*   💾 **片段下载**: 直接从播放器下载当前正在播放的视频片段。
-*   🔒 **100% 私密**: 所有文件处理都在您的浏览器本地完成，绝不上传您的任何文件。
-*   😊 **Emoji 增强界面**: 为用户界面增添一丝趣味。
-
-## 🚀 使用方法
-
-由于浏览器的安全策略，您需要通过本地 Web 服务器来运行此应用。
-
-**1. 启动本地服务器**
-
-如果您安装了 Node.js，最简单的方式是使用 `npx`：
-
-```bash
-npx http-server -p 8080 .
-```
-
-然后，打开浏览器并访问 `http://localhost:8080`。
-
-**2. 通过 Docker 部署 (推荐)**
-
-如果您安装了 Docker，可以非常方便地在容器中运行此应用。
-
-1.  **构建 Docker 镜像:**
-    ```bash
-    docker build -t teslacam-player .
-    ```
-
-2.  **运行 Docker 容器:**
-    ```bash
-    docker run -d -p 8080:80 teslacam-player
-    ```
-
-3.  **访问应用:**
-    打开浏览器并访问 `http://localhost:8080`。
-
-**3. 选择您的 TeslaCam 文件夹**
-
-1.  点击 “📁 选择文件夹” 按钮。
-2.  在文件选择对话框中，找到并选择您 U 盘中的根 `TeslaCam` 文件夹。
-
-**3. 浏览和播放**
-
-*   您的录像将按日期在侧边栏中列出。
-*   使用筛选器查找特定事件。
-*   点击任何事件即可开始播放。
-*   点击事件列表中的城市名称（如果存在），可以在高德地图或谷歌地图上打开该位置。
-*   暂停时，点击标题栏的 💾 图标即可下载当前视频文件。
-
-## ⌨️ 键盘快捷键
-
-*   **`空格键`**: 播放 / 暂停视频。
-
-## 🔒 隐私优先
-
-本工具将隐私放在首位。**所有文件处理都直接在您的浏览器中进行。** 您的视频和数据永远不会被上传到任何服务器。完全私密、安全。
-
-## 🛠️ 技术栈
-
-*   **HTML5, CSS3, JavaScript (ES6+)**
-*   无框架，为追求性能仅使用原生 JS。
-*   使用文件系统访问 API 处理本地文件。
-
-## 📄 许可证
-
-MIT 许可证
