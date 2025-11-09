@@ -5,15 +5,10 @@ services:
     image: dupengcheng66666/teslacamplayer:latest
     container_name: teslacamplayer
     ports:
-      - "8080:80"
+      - "8188:80"
     restart: unless-stopped
     environment:
       - TZ=Asia/Shanghai
-    volumes:
-      # 如果需要挂载本地视频文件，可以取消下面的注释
-      # - ./videos:/usr/share/nginx/html/videos
-      # 如果需要自定义 nginx 配置，可以取消下面的注释
-      # - ./nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - teslacam-network
 
