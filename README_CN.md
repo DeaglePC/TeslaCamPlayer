@@ -66,10 +66,10 @@
 如果您安装了 Node.js，最简单的方式是使用 `npx`：
 
 ```bash
-npx http-server -p 8080 .
+npx http-server -p 8188 .
 ```
 
-然后，打开浏览器并访问 `http://localhost:8080`。
+然后，打开浏览器并访问 `http://localhost:8188`。
 
 **2. 通过 Docker 部署**
 
@@ -85,7 +85,7 @@ npx http-server -p 8080 .
     ```
 
 2.  **访问应用:**
-    打开浏览器并访问 `http://localhost:8080`。
+    打开浏览器并访问 `http://localhost:8188`。
 
 3.  **停止应用:**
     ```bash
@@ -107,17 +107,17 @@ npx http-server -p 8080 .
 
 1.  **拉取并运行预构建的镜像:**
     ```bash
-    docker run -d -p 8080:80 --name teslacamplayer dupengcheng66666/teslacamplayer:latest
+    docker run -d -p 8188:80 --name teslacamplayer dupengcheng66666/teslacamplayer:latest
     ```
 
 2.  **或者构建自己的镜像:**
     ```bash
     docker build -t teslacam-player .
-    docker run -d -p 8080:80 teslacam-player
+    docker run -d -p 8188:80 teslacam-player
     ```
 
 3.  **访问应用:**
-    打开浏览器并访问 `http://localhost:8080`。
+    打开浏览器并访问 `http://localhost:8188`。
 
 **3. 选择您的 TeslaCam 文件夹**
 
@@ -176,3 +176,4 @@ npx http-server -p 8080 .
 ## 📄 许可证
 
 MIT 许可证
+
