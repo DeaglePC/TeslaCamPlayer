@@ -9,8 +9,8 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Asia/Shanghai
-      - UMAMI_SCRIPT_URL=
-      - UMAMI_WEBSITE_ID=
+      - UMAMI_SCRIPT_URL=${UMAMI_SCRIPT_URL:-}
+      - UMAMI_WEBSITE_ID=${UMAMI_WEBSITE_ID:-}
     networks:
       - tdashcam-network
 
